@@ -425,9 +425,6 @@ int sysTickHook() { // Runs at 1kHz
 inline __attribute__((always_inline)) void updateWidth(uint8_t chan, uint32_t pulseWidth) {
   const VoiceConfig &vc = voiceConfigs[chan];
   if(vc.timerab) {
-    // Check if we even need to update the period
-    if(vc.channel->TC_RB == pulseWidth) return;
-    
     // If we decrease the compare value below the counter value, it will never equal it to set the pin low
     //   and the pin will stay high for an entire period (bad).
     // Include some margin since counter will keep going as the code runs
@@ -442,7 +439,6 @@ inline __attribute__((always_inline)) void updateWidth(uint8_t chan, uint32_t pu
       vc.channel->TC_CCR = TC_CCR_SWTRG; // re-trigger the timer
     } else vc.channel->TC_CMR |= TC_CMR_BCPC_SET;
   } else {
-    if(vc.channel->TC_RA == pulseWidth) return;
     if(vc.channel->TC_RA > vc.channel->TC_CV && pulseWidth < vc.channel->TC_CV+10) {
       uint32_t temp = vc.channel->TC_CV;
       vc.channel->TC_CCR = TC_CCR_SWTRG;
@@ -459,7 +455,6 @@ inline __attribute__((always_inline)) void updateWidth(uint8_t chan, uint32_t pu
 // Update frequency of a timer
 inline __attribute__((always_inline)) void updatePeriod(uint8_t chan, uint32_t period) {
   const VoiceConfig &vc = voiceConfigs[chan];
-  if(vc.channel->TC_RC == period) return;
   vc.channel->TC_RC = period;
   if(vc.channel->TC_CV > period) { // Reset so counter stays below the period (otherwise would get long pulses)
     if(vc.timerab) {
