@@ -27,6 +27,7 @@ Standard MIDI pitch bend and aftertouch messages apply to the first three channe
  * Tremolo (rate = 102, depth = 92, delay = 103)
  * Vibrato (rate = 76, depth = 77, delay = 78)
  * ADSR (116, 117, 118, 119)
+ * Arpeggio rate (14)
 
 ### Drum samples
  * Kick (36/C2)
