@@ -23,13 +23,16 @@
 // Uncomment to print incoming midi bytes over USB
 //#define PRINTMIDI
 
+// Uncomment to automatically reduce pulse width when many voices are playing at once
+//#define AUTODUCK
+
 const float midi2freq[] = {8.18,8.66,9.18,9.72,10.30,10.91,11.56,12.25,12.98,13.75,14.57,15.43,16.35,17.32,18.35,19.45,20.60,21.83,23.12,24.50,25.96,27.50,29.14,30.87,32.70,34.65,36.71,38.89,41.20,43.65,46.25,49.00,51.91,55.00,58.27,61.74,65.41,69.30,73.42,77.78,82.41,87.31,92.50,98.00,103.83,110.00,116.54,123.47,130.81,138.59,146.83,155.56,164.81,174.61,185.00,196.00,207.65,220.00,233.08,246.94,261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88,523.25,554.37,587.33,622.25,659.26,698.46,739.99,783.99,830.61,880.00,932.33,987.77,1046.50,1108.73,1174.66,1244.51,1318.51,1396.91,1479.98,1567.98,1661.22,1760.00,1864.66,1975.53,2093.00,2217.46,2349.32,2489.02,2637.02,2793.83,2959.96,3135.96,3322.44,3520.00,3729.31,3951.07,4186.01,4434.92,4698.64,4978.03,5274.04,5587.65,5919.91,6271.93,6644.88,7040.00,7458.62,7902.13,8372.02,8869.84,9397.27,9956.06,10548.08,11175.30,11839.82,12543.85};
 
 #define EXP_CRUNCH 4
 uint8_t eLookup[256];
 int8_t sinLookup[256];
 
-#define MAX_WIDTH ((uint32_t)(F_CPU/2*600e-6)) // max pulse width (600us)
+#define MAX_WIDTH ((uint32_t)(F_CPU/2*1e-3)) // max pulse width (1ms)
 #define MIN_WIDTH ((uint32_t)(F_CPU/2*10e-6))  // min pulse width (10us)
 #define MIN_OFF_TIME ((int32_t)(F_CPU/2*50e-6)) // minimum time between pulses on each channel (50us)
 #define VEL_THRESH 10 // minimum velocity
@@ -266,6 +269,7 @@ int sysTickHook() { // Runs at 1kHz
   }
   
   // Update voices
+  int totalEnv = 0;
   for(int x=0; x<NVOICES; x++) {
     Voice &voice = voices[x];
     
@@ -332,12 +336,13 @@ int sysTickHook() { // Runs at 1kHz
         // Keep track of env right before release so it releases from the right point
         if(voice.adsrStage < 3) voice.lastEnv = env;
   
-        voice.pulseWidth = (uint64_t)env*voice.midiVel*MAX_WIDTH/32385;
+//        voice.pulseWidth = (uint64_t)env*voice.midiVel*MAX_WIDTH/32385;
       } else {
-        if(voice.midiNoteDown) voice.pulseWidth = (uint64_t)voice.midiVel*MAX_WIDTH/127;
+        if(voice.midiNoteDown) env = voice.midiVel*2; //voice.pulseWidth = (uint64_t)voice.midiVel*MAX_WIDTH/127;
         else {
           voice.active = false;
-          voice.pulseWidth = 0;
+//          voice.pulseWidth = 0;
+          env = 0;
         }
       }
       
@@ -394,17 +399,17 @@ int sysTickHook() { // Runs at 1kHz
         int8_t tremoloOscillate = sinLookup[((uint64_t)dt*255/tremoloPeriod)&0xFF];
         int8_t vibratoOscillate = sinLookup[((uint64_t)dt*255/vibratoPeriod)&0xFF];
   
-        voice.pulseWidth *= (int32_t)tremoloDepth*tremoloAmount*tremoloOscillate/8258175.0+1;
+        env *= (int32_t)tremoloDepth*tremoloAmount*tremoloOscillate/8258175.0+1;
         note *= (int32_t)vibratoDepth*vibratoAmount*vibratoOscillate/8258175.0+1;
       }
 
       voice.period = F_CPU/2/note; // /NHARMONICS
+      
+      // Save env in pulseWidth; will be overwritten later to the correct pulse width
+      voice.pulseWidth = env;
 
-      if((int32_t)voice.period-(int32_t)voice.pulseWidth < MIN_OFF_TIME) voice.pulseWidth = voice.period - MIN_OFF_TIME;
-
-      // Update timer
-      updatePeriod(x, voice.period);
-      updateWidth(x, voice.pulseWidth);
+      // Keep track of the total amount of stuff playing
+      totalEnv += env;
       
       // Generate LUT in order to quickly update harmonic pulse widths
       /*
@@ -417,11 +422,34 @@ int sysTickHook() { // Runs at 1kHz
         lutIndex = lutIndex*2+1;
       }
       */
+    }
+  }
+
+  // Compute how much to reduce the pulse width based on how much stuff is currently playing to make it more intelligible
+#ifdef AUTODUCK
+  uint16_t duck = (255*255) / max(totalEnv-255, 255);
+#else
+  static const uint16_t duck = 255;
+#endif
+
+  // Iterate through voices again to update the timers
+  for(int x=0; x<NVOICES; x++) {
+    Voice &voice = voices[x];
+    
+    if(voice.active) {
+      // Make duty cycle correspond to envelope
+      uint8_t env = voice.pulseWidth;
+      uint64_t maxWidth = voice.period*3/4; // Limit to 75% duty cycle
+      if(maxWidth > MAX_WIDTH) maxWidth = MAX_WIDTH;
+      voice.pulseWidth = maxWidth*env*duck/65025;
+
+      if((int32_t)voice.period-(int32_t)voice.pulseWidth < MIN_OFF_TIME) voice.pulseWidth = voice.period - MIN_OFF_TIME;
+
+      // Update timer
+      updatePeriod(x, voice.period);
+      updateWidth(x, voice.pulseWidth);
     } else { // Note is not active
-//      updatePeriod(x, F_CPU/2/100); // Set to 100Hz
-//      for(int y=1; y<=0xFF; y=y*2+1)
-//        voice.harmonicLUT[y] = 0; // Mute
-        updateWidth(x, 0);
+      updateWidth(x, 0);
     }
   }
 
