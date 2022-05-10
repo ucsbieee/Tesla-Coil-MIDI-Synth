@@ -1,6 +1,6 @@
 # UCSB IEEE Tesla Coil MIDI Synthesizer
 
-This is an Arduino program to convert MIDI data to pulses to drive the Tesla Coil. The Arduino enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file.
+This is an Arduino program to convert MIDI data to pulses to drive the Tesla Coil. The Arduino enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file. It will also respond to MIDI messages sent into a physical MIDI port connected through an optoisolator to pin 1.
 
 This program is intended for the [Arduino Due](https://docs.arduino.cc/hardware/due), though it could probably be ported to other MCUs without too much effort (hard part is timers and USB stuff).
 
