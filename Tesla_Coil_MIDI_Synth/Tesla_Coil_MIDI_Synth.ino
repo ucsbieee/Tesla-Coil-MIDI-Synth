@@ -3,8 +3,8 @@
     * Pitch bend
     * Aftertouch
  * Effects
-    * Tremolo (rate = 102, depth = 92, delay = 103)
-    * Vibrato (rate = 76, depth = 77, delay = 78)
+    * Tremolo (volume) (rate = 102, depth = 92, delay = 103)
+    * Vibrato (pitch) (rate = 76, depth = 77, delay = 78)
     * ADSR (116, 117, 118, 119)
     * Over/undertones (1/16 = 20, 1/8 = 21, 1/4 = 22, 1/2 = 23, 2 = 24, 3 = 25, 4 = 26, 5 = 27)
  * Channels
@@ -32,7 +32,7 @@ const float midi2freq[] = {8.18,8.66,9.18,9.72,10.30,10.91,11.56,12.25,12.98,13.
 uint8_t eLookup[256];
 int8_t sinLookup[256];
 
-#define MAX_WIDTH ((uint32_t)(F_CPU/2*1e-3)) // max pulse width (1ms)
+#define MAX_WIDTH ((uint32_t)(F_CPU/2*3e-3)) // max pulse width (3ms)
 #define MIN_WIDTH ((uint32_t)(F_CPU/2*10e-6))  // min pulse width (10us)
 #define MIN_OFF_TIME ((int32_t)(F_CPU/2*50e-6)) // minimum time between pulses on each channel (50us)
 #define VEL_THRESH 10 // minimum velocity
@@ -42,6 +42,9 @@ int8_t sinLookup[256];
 
 // Buffer data coming in through hardware MIDI
 unsigned char hwMIDIbuf[3], hwMIDIbufInd = 0;
+
+// Volume control knob
+uint16_t vol = 1023;
 
 // Channels
 enum {
@@ -439,7 +442,7 @@ int sysTickHook() { // Runs at 1kHz
     if(voice.active) {
       // Make duty cycle correspond to envelope
       uint8_t env = voice.pulseWidth;
-      uint64_t maxWidth = voice.period*3/4; // Limit to 75% duty cycle
+      uint64_t maxWidth = voice.period*3/4*vol/1023; // Limit to 75% duty cycle
       if(maxWidth > MAX_WIDTH) maxWidth = MAX_WIDTH;
       voice.pulseWidth = maxWidth*env*duck/65025;
 
@@ -859,4 +862,6 @@ void loop() {
       handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
     }
   }
+
+  vol = analogRead(0);
 }

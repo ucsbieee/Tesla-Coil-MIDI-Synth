@@ -15,6 +15,8 @@ The following pins should be ORed together to drive the fiber optic transmitter.
 
 These pins are the six voices (could have nine with this MCU but they aren't broken out on the Arduino). These voices will respond to the following MIDI channels.
 
+A volume control potentiometer can be connected to A0 to control the overall pulse width, otherwise the pin should be tied high.
+
 ### MIDI Channels
  1. Clean (no effects)
  2. Effects
