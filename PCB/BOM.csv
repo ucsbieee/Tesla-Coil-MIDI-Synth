@@ -1,0 +1,45 @@
+Item,Qty,Reference(s),Value,LibPart,Footprint,Datasheet,DigiKey Part Number
+1,4,"C1, C5, C10, C17",10µ,Device:C_Small,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,
+2,16,"C2, C3, C4, C6, C7, C8, C11, C14, C15, C16, C18, C20, C21, C22, C24, C25",100n,Device:C_Small,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,,
+3,3,"C9, C12, C13",10p,Device:C_Small,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,,
+4,2,"C19, C23",1n,Device:C_Small,Capacitor_THT:C_Disc_D7.5mm_W5.0mm_P7.50mm,,
+5,1,D1,D1213,Custom_Symbols:D1213,Custom_Footprints:SOT25,https://www.diodes.com/assets/Datasheets/D1213A-02SM.pdf,D1213A-02SM-7DICT-ND
+6,1,D2,Voice 1,Device:LED,LED_THT:LED_D5.0mm,,
+7,1,D3,Voice 2,Device:LED,LED_THT:LED_D5.0mm,,
+8,1,D4,Voice 3,Device:LED,LED_THT:LED_D5.0mm,,
+9,1,D5,Voice 4,Device:LED,LED_THT:LED_D5.0mm,,
+10,1,D6,Voice 5,Device:LED,LED_THT:LED_D5.0mm,,
+11,1,D7,Voice 6,Device:LED,LED_THT:LED_D5.0mm,,
+12,7,"D8, D9, D10, D11, D12, D13, D14",D,Device:D,Diode_SMD:D_SOD-123,,1727-7320-1-ND
+13,6,"FB1, FB2, FB3, FB4, FB5, FB6",FerriteBead_Small,Device:FerriteBead_Small,Inductor_SMD:L_0805_2012Metric_Pad1.05x1.20mm_HandSolder,,1276-6377-1-ND
+14,1,FL1,Filter_EMI_CommonMode,Device:Filter_EMI_CommonMode,Custom_Footprints:Bourns_SRF2012AA,,SRF2012A-900YACT-ND
+15,1,J1,USB C,Connector:USB_C_Receptacle_USB2.0,Custom_Footprints:GCT_USBC_USB4105,,2073-USB4105-GF-ACT-ND
+16,1,J2,JTAG,Connector_Generic:Conn_02x05_Odd_Even,Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical,,
+17,1,J3,Expansion,Connector_Generic:Conn_02x05_Odd_Even,Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical,,
+18,1,J4,Headphone Output,Connector:AudioJack3_SwitchTR,Custom_Footprints:Adam_Tech_ASJ-99H-X-HT-TR,,2057-ASJ-99H-R-HT-T/RCT-ND
+19,1,J5,BNC Output,Connector:Conn_Coaxial,Custom_Footprints:Adam_Tech_BNC_RF1-01K-D-00-50-BK-HDW,,2057-RF1-01K-D-00-50-BK-HDW-ND
+20,1,J6,MIDI Out,Connector:DIN-5_180degree,Custom_Footprints:CUI_DIN_SDS-50J,,CP-2350-ND
+21,1,J7,MIDI In,Connector:DIN-5_180degree,Custom_Footprints:CUI_DIN_SDS-50J,,CP-2350-ND
+22,1,L1,4.7µ,Device:L,Inductor_SMD:L_0805_2012Metric_Pad1.05x1.20mm_HandSolder,,445-8659-1-ND
+23,2,"Q1, Q2",2N7002,Device:Q_NMOS_GSD,Package_TO_SOT_SMD:SOT-23,,1727-1289-1-ND
+24,7,"R1, R2, R4, R7, R8, R9, R20",10k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+25,1,R3,6.8k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+26,2,"R5, R6",39,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+27,10,"R10, R11, R12, R13, R14, R15, R23, R24, R25, R26",220,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+28,1,R16,1k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+29,1,R17,2.2k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+30,4,"R18, R19, R21, R22",47,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+31,1,R27,100k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+32,1,RV1,Contrast,Device:R_Potentiometer_Trim_US,Potentiometer_SMD:Potentiometer_Bourns_TC33X_Vertical,,TC33X-103ECT-ND
+33,2,"SG1, SG2",SparkGap,Device:SparkGap,Custom_Footprints:Spark_Gap,,
+34,1,SW1,Reset,Switch:SW_Push,Button_Switch_THT:SW_PUSH_6mm,,
+35,1,SW2,Erase,Switch:SW_Push,Button_Switch_THT:SW_PUSH_6mm,,
+36,1,SW3,Rotary Encoder,Device:RotaryEncoder_Switch,Custom_Footprints:Bourns_Encoder_PEC12R-4130F-S0012,,"PEC12R-4130F-S0012-ND, 1568-1601-ND"
+37,1,U1,AZ1117-3.3,Regulator_Linear:AZ1117-3.3,Package_TO_SOT_SMD:SOT-89-3,,AZ1117CR-3.3TRG1DICT-ND
+38,1,U2,SAM3A4C,Custom_Symbols:SAM3A4C,Package_BGA:TFBGA-100_9.0x9.0mm_Layout10x10_P0.8mm,http://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en590017,1611-ATSAM3A4CA-CU-ND
+39,1,U3,SFH617A-1,Isolator:SFH617A-1,Package_DIP:DIP-4_W10.16mm,,732-140817141310-ND
+40,1,U4,HFBR-1412PTZ,Custom_Symbols:HFBR-1412PTZ,Custom_Footprints:Broadcom_HFBR-1412PTZ,https://docs.broadcom.com/doc/AV02-0176EN,516-4074-ND
+41,1,U5,74LVC4245A,Custom_Symbols:74LVC4245A,Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm,https://assets.nexperia.com/documents/data-sheet/74LVC4245A.pdf,1727-4308-1-ND
+42,1,U6,6N137,Isolator:6N137,Package_DIP:DIP-8_W7.62mm,,160-1791-ND
+43,1,U7,ERM1602,Custom_Symbols:ERM1602,Custom_Footprints:ERM1602,https://www.buydisplay.com/download/manual/ERM1602-2.1_Series_Datasheet.pdf,
+44,1,Y1,12MHz,Device:Crystal_GND24,Crystal:Crystal_SMD_Abracon_ABM8G-4Pin_3.2x2.5mm,,535-10901-1-ND
