@@ -1,21 +1,12 @@
 # UCSB IEEE Tesla Coil MIDI Synthesizer
 
-This is an Arduino program to convert MIDI data to pulses to drive the Tesla Coil. The Arduino enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file. It will also respond to MIDI messages sent into a physical MIDI port connected through an optoisolator to pin 1.
+This is an Arduino program to convert MIDI data to pulses to drive the Tesla Coil. The Arduino enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file.
 
-This program is intended for the [Arduino Due](https://docs.arduino.cc/hardware/due), though it could probably be ported to other MCUs without too much effort (hard part is timers and USB stuff).
+This program was originally intended for the [Arduino Due](https://docs.arduino.cc/hardware/due) (see the old version in `Tesla_Coil_MIDI_Synth_DUE`). A circuit board has since been designed for it using the similar SAM3A4C MCU (see [this repo](https://github.com/ucsbieee/ArduinoCore-SAM3A4C) for an Arduino IDE board definition), which has a fiber optic output for the big DRSSTC and a BNC port for the small Tesla Coil. It also has isolated physical MIDI in/out ports for connecting other instruments or daisy-chaining more MIDI interrupters.
 
-### Pins
-The following pins should be ORed together to drive the fiber optic transmitter.
- 1. PWM2
- 2. A7
- 3. A4
- 4. PWM5
- 5. PWM3
- 6. PWM11
+The device has six voices, which can each produce a single square wave tone at a variable duty cycle. They are ORed together to give a polyphonic effect.
 
-These pins are the six voices (could have nine with this MCU but they aren't broken out on the Arduino). These voices will respond to the following MIDI channels.
-
-A volume control potentiometer can be connected to A0 to control the overall pulse width, otherwise the pin should be tied high.
+## MIDI Information
 
 ### MIDI Channels
  1. Clean (no effects)
