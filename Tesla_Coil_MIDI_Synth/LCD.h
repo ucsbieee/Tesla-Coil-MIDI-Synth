@@ -201,7 +201,7 @@ static const char *noteNames[] = {
 // Functions
 void initLCD();
 void updateLCD();
-void MIDIping(char c);
+void MIDIping(int8_t c);
 
 }
 

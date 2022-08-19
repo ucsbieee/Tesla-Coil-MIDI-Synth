@@ -21,7 +21,7 @@ DueFlashStorage DFS;
 unsigned long LCDframe = 0;
 unsigned long lastLCDframe = 0;
 unsigned long lastMIDIping = -MIDI_PING_LINGER;
-char MIDIpingChar = ' ', lastMIDIpingChar = MIDIpingChar;
+int8_t MIDIpingChan = -2, lastMIDIpingChan = MIDIpingChan;
 
 uint8_t LCDstate = SCREEN_PULSE_WIDTH, lastLCDstate = 0xFF;
 uint16_t displayedValue = Synth::vol, lastDisplayedValue = 0xFFFF;
@@ -61,7 +61,7 @@ void updateLCD() {
   // Print title
   if(LCDstate != lastLCDstate) {
     lcd.setCursor(0, 0);
-    lcd.print("               ");
+    lcd.print("              ");
     lcd.setCursor(0, 0);
     lcd.print(screen.title);
   }
@@ -74,7 +74,7 @@ void updateLCD() {
           char buf[17];
           snprintf(buf, 17, "%s%i%s                ", editing ? ">" : "", displayedValue, screen.units);
           uint8_t titleLen = strlen(screen.title);
-          buf[15-titleLen] = 0; // Only print 15 chars
+          buf[14-titleLen] = 0; // Only print 14 chars
           lcd.setCursor(titleLen, 0);
           lcd.print(buf);
         }
@@ -126,11 +126,16 @@ void updateLCD() {
   }
 
   // Display when we receive MIDI data
-  if(LCDframe-lastMIDIping > MIDI_PING_LINGER) MIDIpingChar = ' ';
-  if(MIDIpingChar != lastMIDIpingChar) {
-    lcd.setCursor(15, 0);
-    lcd.print(MIDIpingChar);
-    lastMIDIpingChar = MIDIpingChar;
+  if(LCDframe-lastMIDIping > MIDI_PING_LINGER) MIDIpingChan = -2;
+  if(MIDIpingChan != lastMIDIpingChan) {
+    lcd.setCursor(14, 0);
+    if(MIDIpingChan < -1) lcd.print("  ");
+    if(MIDIpingChan == -1) lcd.print(" *");
+    else {
+      if(MIDIpingChan < 10) lcd.print(' ');
+      lcd.print(MIDIpingChan + 1);
+    }
+    lastMIDIpingChan = MIDIpingChan;
   }
 
   if(displayedValue != lastDisplayedValue || LCDstate != lastLCDstate)
@@ -151,9 +156,11 @@ void updateLCD() {
   LCDframe++;
 }
 
-void MIDIping(char c) {
+void MIDIping(int8_t c) {
+  // Don't cover display of playing channels with non-playing channels
+  if(c < 0 && MIDIpingChan >= 0) return;
   lastMIDIping = LCDframe;
-  MIDIpingChar = c;
+  MIDIpingChan = c;
 }
 
 uint16_t displayTypeUINT32(void *data) {

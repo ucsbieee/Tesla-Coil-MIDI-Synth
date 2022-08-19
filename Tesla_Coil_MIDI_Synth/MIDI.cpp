@@ -173,7 +173,6 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
     chosenVoice.arpTimestamp = ms;
   }
 
-noteDownComplete:
   chosenVoice.midiChannel = channel;
   chosenVoice.midiNote = note;
   chosenVoice.midiVel = vel;
@@ -355,11 +354,11 @@ void handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3) {
   // Ignore MIDI channels that we don't respond to
   int16_t offsetChannel = (int16_t)channel - (int16_t)MIDIbaseChannel;
   if(offsetChannel < CHANNEL_CLEAN || offsetChannel >= CHANNEL_INVALID) {
-    LCD::MIDIping('*');
+    LCD::MIDIping(-1);
     return;
   }
+  LCD::MIDIping(channel);
   channel = offsetChannel;
-  LCD::MIDIping(channel + '1');
 
   switch(command) {
     case 0x9:
