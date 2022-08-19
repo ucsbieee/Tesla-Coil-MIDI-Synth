@@ -17,7 +17,7 @@ Item,Qty,Reference(s),Value,LibPart,Footprint,Datasheet,DigiKey Part Number
 16,1,J2,JTAG,Connector_Generic:Conn_02x05_Odd_Even,Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical,,
 17,1,J3,Expansion,Connector_Generic:Conn_02x05_Odd_Even,Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical,,
 18,1,J4,Headphone Output,Connector:AudioJack3_SwitchTR,Custom_Footprints:Adam_Tech_ASJ-99H-X-HT-TR,,2057-ASJ-99H-R-HT-T/RCT-ND
-19,1,J5,BNC Output,Connector:Conn_Coaxial,Custom_Footprints:Adam_Tech_BNC_RF1-01K-D-00-50-BK-HDW,,2057-RF1-01K-D-00-50-BK-HDW-ND
+19,1,J5,BNC Output,Connector:Conn_Coaxial,Custom_Footprints:Adam_Tech_BNC_RF1-01K-D-00-50-BK-HDW,,"2057-RF1-01K-D-00-50-BK-HDW-ND, SC2808-ND"
 20,1,J6,MIDI Out,Connector:DIN-5_180degree,Custom_Footprints:CUI_DIN_SDS-50J,,CP-2350-ND
 21,1,J7,MIDI In,Connector:DIN-5_180degree,Custom_Footprints:CUI_DIN_SDS-50J,,CP-2350-ND
 22,1,L1,4.7µ,Device:L,Inductor_SMD:L_0805_2012Metric_Pad1.05x1.20mm_HandSolder,,445-8659-1-ND
@@ -27,7 +27,7 @@ Item,Qty,Reference(s),Value,LibPart,Footprint,Datasheet,DigiKey Part Number
 26,2,"R5, R6",39,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 27,10,"R10, R11, R12, R13, R14, R15, R23, R24, R25, R26",220,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 28,1,R16,1k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
-29,1,R17,2.2k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+29,2,R17,2.2k or 10k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 30,4,"R18, R19, R21, R22",47,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 31,1,R27,100k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 32,1,RV1,Contrast,Device:R_Potentiometer_Trim_US,Potentiometer_SMD:Potentiometer_Bourns_TC33X_Vertical,,TC33X-103ECT-ND
@@ -43,3 +43,4 @@ Item,Qty,Reference(s),Value,LibPart,Footprint,Datasheet,DigiKey Part Number
 42,1,U6,6N137,Isolator:6N137,Package_DIP:DIP-8_W7.62mm,,160-1791-ND
 43,1,U7,ERM1602,Custom_Symbols:ERM1602,Custom_Footprints:ERM1602,https://www.buydisplay.com/download/manual/ERM1602-2.1_Series_Datasheet.pdf,
 44,1,Y1,12MHz,Device:Crystal_GND24,Crystal:Crystal_SMD_Abracon_ABM8G-4Pin_3.2x2.5mm,,535-10901-1-ND
+,2,USB-C pull-down resistors,5.1k,,,,
