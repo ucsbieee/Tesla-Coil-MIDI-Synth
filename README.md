@@ -14,7 +14,7 @@ The device has six voices, which can each produce a single square wave tone at a
  3. Arpeggio and effects
  4. Drums
 
-Standard MIDI pitch bend and aftertouch messages apply to the first three channels.
+Standard MIDI pitch bend and aftertouch messages apply to all channels.
 
 ### Effects (CC number in parentheses)
  * Tremolo (rate = 102, depth = 92, delay = 103)
