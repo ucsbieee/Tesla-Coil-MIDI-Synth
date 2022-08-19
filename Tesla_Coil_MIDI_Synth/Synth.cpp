@@ -101,6 +101,9 @@ void updateSynth() {
 
         // Keep track of env right before release so it releases from the right point
         if(voice.adsrStage < 3) voice.lastEnv = env;
+
+        // Apply MIDI note velocity
+        env = env*voice.midiVel*2/255;
       } else {
         if(voice.midiNoteDown) env = voice.midiVel*2;
         else {
