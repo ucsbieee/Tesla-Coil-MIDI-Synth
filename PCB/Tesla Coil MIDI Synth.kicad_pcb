@@ -1,7 +1,7 @@
 (kicad_pcb (version 20211014) (generator pcbnew)
 
   (general
-    (thickness 4.69)
+    (thickness 1.6)
   )
 
   (paper "USLetter")
@@ -53,11 +53,11 @@
       (layer "F.Paste" (type "Top Solder Paste"))
       (layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))
       (layer "F.Cu" (type "copper") (thickness 0.035))
-      (layer "dielectric 1" (type "core") (thickness 1.51) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 1" (type "core") (thickness 0.48) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "In1.Cu" (type "copper") (thickness 0.035))
-      (layer "dielectric 2" (type "prepreg") (thickness 1.51) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 2" (type "prepreg") (thickness 0.48) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "In2.Cu" (type "copper") (thickness 0.035))
-      (layer "dielectric 3" (type "core") (thickness 1.51) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+      (layer "dielectric 3" (type "core") (thickness 0.48) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
       (layer "B.Cu" (type "copper") (thickness 0.035))
       (layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
       (layer "B.Paste" (type "Bottom Solder Paste"))
@@ -68,7 +68,7 @@
     (pad_to_mask_clearance 0.05)
     (solder_mask_min_width 0.1)
     (pcbplotparams
-      (layerselection 0x00010f8_ffffffff)
+      (layerselection 0x0000230_7ffffff8)
       (disableapertmacros false)
       (usegerberextensions false)
       (usegerberattributes true)
@@ -85,7 +85,7 @@
       (hpglpenspeed 20)
       (hpglpendiameter 15.000000)
       (dxfpolygonmode true)
-      (dxfimperialunits true)
+      (dxfimperialunits false)
       (dxfusepcbnewfont true)
       (psnegative false)
       (psa4output false)
@@ -94,11 +94,11 @@
       (plotinvisibletext false)
       (sketchpadsonfab false)
       (subtractmaskfromsilk false)
-      (outputformat 1)
+      (outputformat 3)
       (mirror false)
       (drillshape 0)
       (scaleselection 1)
-      (outputdirectory "Gerber/")
+      (outputdirectory "./")
     )
   )
 
@@ -7653,7 +7653,7 @@
   (zone locked (net 0) (net_name "") (layer "F.Cu") (tstamp 2e5ecdcf-2fa5-4e61-90c0-55e147a58aa6) (hatch edge 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.254)
-    (keepout (tracks allowed) (vias allowed) (pads allowed ) (copperpour not_allowed) (footprints allowed))
+    (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
     (fill (thermal_gap 0.127) (thermal_bridge_width 1.27))
     (polygon
       (pts
@@ -7904,7 +7904,7 @@
   (zone (net 0) (net_name "") (layers "F.Cu" "In1.Cu" "In2.Cu" "B.Cu") (tstamp ae8e9b78-7e1c-4572-9f9f-cba0c0b6d8f0) (hatch edge 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.254)
-    (keepout (tracks allowed) (vias allowed) (pads allowed ) (copperpour not_allowed) (footprints allowed))
+    (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
     (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
     (polygon
       (pts
@@ -7923,7 +7923,7 @@
   (zone (net 0) (net_name "") (layers "F.Cu" "In1.Cu" "In2.Cu") (tstamp af4d6a96-167c-4313-b4a8-c1a284389e66) (hatch edge 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.254)
-    (keepout (tracks allowed) (vias allowed) (pads allowed ) (copperpour not_allowed) (footprints allowed))
+    (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
     (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
     (polygon
       (pts
@@ -68862,7 +68862,7 @@
   (zone (net 0) (net_name "") (layer "B.Cu") (tstamp 187f8e2a-433a-4f8e-829c-16dc9085b395) (hatch edge 0.508)
     (connect_pads (clearance 0))
     (min_thickness 0.254)
-    (keepout (tracks allowed) (vias allowed) (pads allowed ) (copperpour not_allowed) (footprints allowed))
+    (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
     (fill (thermal_gap 0.508) (thermal_bridge_width 0.508))
     (polygon
       (pts
@@ -68882,7 +68882,7 @@
   (zone (net 0) (net_name "") (layer "B.Cu") (tstamp a16a8863-65c2-447a-a212-2727a077945e) (hatch edge 0.508)
     (connect_pads yes (clearance 0))
     (min_thickness 0.127)
-    (keepout (tracks allowed) (vias allowed) (pads allowed ) (copperpour not_allowed) (footprints allowed))
+    (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
     (fill (thermal_gap 0.127) (thermal_bridge_width 0.127))
     (polygon
       (pts
