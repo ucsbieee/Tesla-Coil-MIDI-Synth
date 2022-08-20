@@ -118,7 +118,10 @@ void updateLCD() {
       displayedValue = screen.convert(screen.dataValue);
       if(LCDstate != lastLCDstate || displayedValue != lastDisplayedValue || editing != lastEditing) {
         char buf[17];
-        snprintf(buf, 17, "%c%i%s                ", editing ? '>' : ' ', displayedValue, screen.units);
+        if(screen.convert == &displayTypeUINT32Hz) // Show decimal places
+          snprintf(buf, 17, "%c%i.%.2i%s                ", editing ? '>' : ' ', displayedValue/100, displayedValue%100, screen.units);
+        else
+          snprintf(buf, 17, "%c%i%s                ", editing ? '>' : ' ', displayedValue, screen.units);
         lcd.setCursor(0, 1);
         lcd.print(buf);
       }
@@ -173,6 +176,10 @@ uint16_t displayTypeUINT8scaled(void *data) {
 
 uint16_t displayTypeMIDIchannel(void *data) {
   return *(uint8_t*)data+1;
+}
+
+uint16_t displayTypeUINT32Hz(void *data) {
+  return 100000 / *(uint32_t*)data;
 }
 
 }

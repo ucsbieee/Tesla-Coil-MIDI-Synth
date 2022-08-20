@@ -39,6 +39,7 @@ extern bool editing;
 uint16_t displayTypeUINT32(void *data);
 uint16_t displayTypeUINT8scaled(void *data);
 uint16_t displayTypeMIDIchannel(void *data);
+uint16_t displayTypeUINT32Hz(void *data);
 
 typedef struct {
   // Text to display
@@ -101,7 +102,7 @@ static const LCD_screen_descriptor screens[] = {
     RELEASE_CC
   },
   { // SCREEN_TREM_DEPTH
-    "Trem. Depth",
+    "Trem Depth",
     "%",
     &displayTypeUINT8scaled,
     (void*)&MIDI::tremoloDepth,
@@ -109,15 +110,15 @@ static const LCD_screen_descriptor screens[] = {
     TREMOLO_DEPTH_CC
   },
   { // SCREEN_TREM_PERIOD
-    "Trem. Period",
-    "ms",
-    &displayTypeUINT32,
+    "Trem Speed",
+    "Hz",
+    &displayTypeUINT32Hz,
     (void*)&MIDI::tremoloPeriod,
     &MIDI::tremoloPeriodCC,
     TREMOLO_PERIOD_CC
   },
   { // SCREEN_TREM_DELAY
-    "Trem. Delay",
+    "Trem Delay",
     "ms",
     &displayTypeUINT32,
     (void*)&MIDI::tremoloDelay,
@@ -125,7 +126,7 @@ static const LCD_screen_descriptor screens[] = {
     TREMOLO_DELAY_CC
   },
   { // SCREEN_VIBR_DEPTH
-    "Vibr. Depth",
+    "Vibr Depth",
     "%",
     &displayTypeUINT8scaled,
     (void*)&MIDI::vibratoDepth,
@@ -133,15 +134,15 @@ static const LCD_screen_descriptor screens[] = {
     VIBRATO_DEPTH_CC
   },
   { // SCREEN_VIBR_PERIOD
-    "Vibr. Period",
-    "ms",
-    &displayTypeUINT32,
+    "Vibr Speed",
+    "Hz",
+    &displayTypeUINT32Hz,
     (void*)&MIDI::vibratoPeriod,
     &MIDI::vibratoPeriodCC,
     VIBRATO_PERIOD_CC
   },
   { // SCREEN_VIBR_DELAY
-    "Vibr. Delay",
+    "Vibr Delay",
     "ms",
     &displayTypeUINT32,
     (void*)&MIDI::vibratoDelay,
@@ -149,9 +150,9 @@ static const LCD_screen_descriptor screens[] = {
     VIBRATO_DELAY_CC
   },
   { // SCREEN_ARP_PERIOD
-    "Arp. Period",
-    "ms",
-    &displayTypeUINT32,
+    "Arp Speed",
+    "Hz",
+    &displayTypeUINT32Hz,
     (void*)&MIDI::arpeggioPeriod,
     &MIDI::arpeggioPeriodCC,
     ARPEGGIO_CC
