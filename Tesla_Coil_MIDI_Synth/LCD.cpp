@@ -133,7 +133,7 @@ void updateLCD() {
   if(MIDIpingChan != lastMIDIpingChan) {
     lcd.setCursor(14, 0);
     if(MIDIpingChan < -1) lcd.print("  ");
-    if(MIDIpingChan == -1) lcd.print(" *");
+    else if(MIDIpingChan == -1) lcd.print(" *");
     else {
       if(MIDIpingChan < 10) lcd.print(' ');
       lcd.print(MIDIpingChan + 1);
