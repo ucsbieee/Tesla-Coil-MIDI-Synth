@@ -52,7 +52,7 @@ extern uint8_t tremoloDepthCC;
 extern uint8_t tremoloPeriodCC;
 extern uint8_t tremoloDelayCC;
 
-#define VIBRATO_DEPTH_MAX 204
+#define VIBRATO_DEPTH_MAX 128
 #define VIBRATO_PERIOD_MAX 3000
 #define VIBRATO_PERIOD_MIN 10
 #define VIBRATO_DELAY_MAX 10000
@@ -123,7 +123,7 @@ extern uint8_t releaseCC;
 extern uint32_t arpeggioPeriod;
 extern uint8_t arpeggioPeriodCC;
 
-#define PITCH_BEND_RANGE 1.1224489796 // 2 semitones
+#define PITCH_BEND_RANGE 1.4142135624 // 6 semitones
 
 // Limit note range
 #define MIDI_MAX_NOTE 107 // B7

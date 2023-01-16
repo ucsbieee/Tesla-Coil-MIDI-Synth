@@ -146,7 +146,7 @@ void updateSynth() {
       } else note = MIDI::midi2freq[voice.midiNote];
 
       // Process pitch bend
-      note *= 1+(PITCH_BEND_RANGE-1)*voice.midiPB/0x2000;
+      note *= powf(PITCH_BEND_RANGE, (float)voice.midiPB/0x2000);
   
       // Process tremolo and vibrato
       if(voice.midiChannel == MIDI::CHANNEL_FX || voice.midiChannel == MIDI::CHANNEL_ARP) {
@@ -166,7 +166,7 @@ void updateSynth() {
         int8_t vibratoOscillate = sinLookup[((uint64_t)dt*255/MIDI::vibratoPeriod)&0xFF];
   
         env *= (int32_t)MIDI::tremoloDepth*tremoloAmount*tremoloOscillate/8258175.0+1;
-        note *= (int32_t)MIDI::vibratoDepth*vibratoAmount*vibratoOscillate/8258175.0+1;
+        note *= powf(2, (int32_t)MIDI::vibratoDepth*vibratoAmount*vibratoOscillate/8258175.0);
       }
 
       voice.period = F_CPU/2/note;
