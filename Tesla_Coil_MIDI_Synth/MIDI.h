@@ -123,7 +123,7 @@ extern uint8_t releaseCC;
 extern uint32_t arpeggioPeriod;
 extern uint8_t arpeggioPeriodCC;
 
-#define PITCH_BEND_RANGE 1.4142135624 // 6 semitones
+#define PITCH_BEND_RANGE 1.1224620483 // 2 semitones
 
 // Limit note range
 #define MIDI_MAX_NOTE 107 // B7
