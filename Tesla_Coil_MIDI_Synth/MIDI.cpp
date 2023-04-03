@@ -319,6 +319,7 @@ void cc(uint8_t channel, uint8_t control, uint8_t value) {
       sustainCC = value;
       break;
     case RELEASE_CC:
+    case 64: // Sustain pedal
       release = ADR_FROM_CC(value);
       releaseCC = value;
       break;
