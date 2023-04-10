@@ -27,18 +27,19 @@ Item,Qty,Reference(s),Value,LibPart,Footprint,Datasheet,DigiKey Part Number
 26,11,"R10, R11, R12, R13, R14, R15, R21, R23, R24, R25, R26",220,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 27,2,"R16, R28",5.1k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 28,2,"R18, R19",100,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
-29,1,RV1,Contrast,Device:R_Potentiometer_Trim_US,Potentiometer_SMD:Potentiometer_Bourns_TC33X_Vertical,,TC33X-103ECT-ND
-30,2,"SG1, SG2",SparkGap,Device:SparkGap,Custom_Footprints:Spark_Gap,,
-31,1,SW1,Reset,Switch:SW_Push,Button_Switch_THT:SW_PUSH_6mm,,
-32,1,SW2,Erase,Switch:SW_Push,Button_Switch_THT:SW_PUSH_6mm,,
-33,1,SW3,Rotary Encoder,Device:RotaryEncoder_Switch,Custom_Footprints:Bourns_Encoder_PEC12R-4130F-S0012,,"PEC12R-4130F-S0012-ND, 1568-1601-ND"
-34,1,U1,AZ1117-3.3,Regulator_Linear:AZ1117-3.3,Package_TO_SOT_SMD:SOT-89-3,,AZ1117CR-3.3TRG1DICT-ND
-35,1,U2,SAM3A4C,Custom_Symbols:SAM3A4C,Package_BGA:TFBGA-100_9.0x9.0mm_Layout10x10_P0.8mm,http://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en590017,1611-ATSAM3A4CA-CU-ND
-36,1,U3,SFH617A-1,Isolator:SFH617A-1,Package_DIP:DIP-4_W10.16mm,,732-140817141310-ND
-37,1,U4,HFBR-1412PTZ,Custom_Symbols:HFBR-1412PTZ,Custom_Footprints:Broadcom_HFBR-1412PTZ,https://docs.broadcom.com/doc/AV02-0176EN,516-4074-ND
-38,1,U5,74LVC4245A,Custom_Symbols:74LVC4245A,Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm,https://assets.nexperia.com/documents/data-sheet/74LVC4245A.pdf,1727-4308-1-ND
-39,1,U6,6N137,Isolator:6N137,Package_DIP:DIP-8_W7.62mm,,160-1791-ND
-40,1,U7,ERM1602,Custom_Symbols:ERM1602,Custom_Footprints:ERM1602,https://www.buydisplay.com/download/manual/ERM1602-2.1_Series_Datasheet.pdf,
-41,1,U8,4075,4xxx:4075,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,,296-SN74HCS4075DRCT-ND
-42,1,U9,74LVC1G17,74xGxx:74LVC1G17,Package_TO_SOT_SMD:SOT-23-5,,296-11933-1-ND
-43,1,Y1,12MHz,Device:Crystal_GND24,Crystal:Crystal_SMD_Abracon_ABM8G-4Pin_3.2x2.5mm,,535-10901-1-ND
+29,1,R29,10,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+30,1,RV1,Contrast,Device:R_Potentiometer_Trim_US,Potentiometer_SMD:Potentiometer_Bourns_TC33X_Vertical,,TC33X-103ECT-ND
+31,2,"SG1, SG2",SparkGap,Device:SparkGap,Custom_Footprints:Spark_Gap,,
+32,1,SW1,Reset,Switch:SW_Push,Button_Switch_THT:SW_PUSH_6mm,,
+33,1,SW2,Erase,Switch:SW_Push,Button_Switch_THT:SW_PUSH_6mm,,
+34,1,SW3,Rotary Encoder,Device:RotaryEncoder_Switch,Custom_Footprints:Bourns_Encoder_PEC12R-4130F-S0012,,"PEC12R-4130F-S0012-ND, 1568-1601-ND"
+35,1,U1,AZ1117-3.3,Regulator_Linear:AZ1117-3.3,Package_TO_SOT_SMD:SOT-89-3,,AZ1117CR-3.3TRG1DICT-ND
+36,1,U2,SAM3A4C,Custom_Symbols:SAM3A4C,Package_BGA:TFBGA-100_9.0x9.0mm_Layout10x10_P0.8mm,http://www.microchip.com/mymicrochip/filehandler.aspx?ddocname=en590017,1611-ATSAM3A4CA-CU-ND
+37,1,U3,SFH617A-1,Isolator:SFH617A-1,Package_DIP:DIP-4_W10.16mm,,732-140817141310-ND
+38,1,U4,HFBR-1412PTZ,Custom_Symbols:HFBR-1412PTZ,Custom_Footprints:Broadcom_HFBR-1412PTZ,https://docs.broadcom.com/doc/AV02-0176EN,516-4074-ND
+39,1,U5,74LVC4245A,Custom_Symbols:74LVC4245A,Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm,https://assets.nexperia.com/documents/data-sheet/74LVC4245A.pdf,1727-4308-1-ND
+40,1,U6,6N137,Isolator:6N137,Package_DIP:DIP-8_W7.62mm,,160-1791-ND
+41,1,U7,ERM1602,Custom_Symbols:ERM1602,Custom_Footprints:ERM1602,https://www.buydisplay.com/download/manual/ERM1602-2.1_Series_Datasheet.pdf,
+42,1,U8,4075,4xxx:4075,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,,296-SN74HCS4075DRCT-ND
+43,1,U9,74LVC1G17,74xGxx:74LVC1G17,Package_TO_SOT_SMD:SOT-23-5,,296-11933-1-ND
+44,1,Y1,12MHz,Device:Crystal_GND24,Crystal:Crystal_SMD_Abracon_ABM8G-4Pin_3.2x2.5mm,,535-10901-1-ND
