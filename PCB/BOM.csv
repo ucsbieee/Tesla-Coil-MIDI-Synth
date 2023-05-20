@@ -27,7 +27,7 @@ Item,Qty,Reference(s),Value,LibPart,Footprint,Datasheet,DigiKey Part Number
 26,11,"R10, R11, R12, R13, R14, R15, R21, R23, R24, R25, R26",220,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 27,2,"R16, R28",5.1k,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 28,2,"R18, R19",100,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
-29,1,R29,10,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
+29,1,R29,3.3,Device:R_US,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,
 30,1,RV1,Contrast,Device:R_Potentiometer_Trim_US,Potentiometer_SMD:Potentiometer_Bourns_TC33X_Vertical,,TC33X-103ECT-ND
 31,2,"SG1, SG2",SparkGap,Device:SparkGap,Custom_Footprints:Spark_Gap,,
 32,1,SW1,Reset,Switch:SW_Push,Button_Switch_THT:SW_PUSH_6mm,,

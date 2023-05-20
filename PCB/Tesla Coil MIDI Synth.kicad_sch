@@ -4867,7 +4867,7 @@
     (property "Reference" "R29" (at 55.88 96.4311 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "10" (at 55.88 98.3521 90)
+    (property "Value" "3.3" (at 55.88 98.3521 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (at 56.134 99.314 90)
