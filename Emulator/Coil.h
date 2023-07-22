@@ -32,10 +32,11 @@ public:
 	Coil(const Coil&) = delete;
 
 private:
-	// Period and pulse width define an oscillator
+	// Period, pulse width, and counter are in a timer
 	typedef struct {
 		uint64_t period;
 		uint64_t pulseWidth;
+		uint64_t counter;
 	} Oscillator;
 
 	// Emulate hardware oscillators in MCU

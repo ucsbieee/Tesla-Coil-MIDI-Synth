@@ -19,8 +19,17 @@ float Coil::getNextSample() {
 	
 	// Logical OR all oscillators like the real controller
 	bool osc_state = false;
-	for(int x = 0; x < NVOICES; x++)
-		osc_state |= (((sample << 16) % std::max(1ULL, oscillators[x].period)) < oscillators[x].pulseWidth);
+	for(int x = 0; x < NVOICES; x++) {
+		// Reset counter
+		if(oscillators[x].counter >= oscillators[x].period)
+			oscillators[x].counter %= std::max(1ULL, oscillators[x].period);
+		
+		// Affect state
+		osc_state |= (oscillators[x].counter < oscillators[x].pulseWidth);
+		
+		// Increment counter
+		oscillators[x].counter += F_CPU/F_SAMP;
+	}
 	
 	sample++;
 	
@@ -31,14 +40,19 @@ void Coil::handleMIDI(const unsigned char *pass) {
 	midi.handleMIDI(pass[0], pass[1], pass[2]);
 }
 
-// Multiply sample rate by 2^16 for better period resolution
+// The following functions emulate the behavior of the real timer update functions
 
 void Coil::updateWidth(uint8_t chan, uint32_t pulseWidth) {
-	oscillators[chan].pulseWidth = (uint64_t)pulseWidth * (F_SAMP << 16) / F_CPU;
+	uint64_t counter = oscillators[chan].counter;
+	if(oscillators[chan].pulseWidth > counter && pulseWidth < counter)
+		oscillators[chan].counter = 0;
+	oscillators[chan].pulseWidth = pulseWidth;
 }
 
 void Coil::updatePeriod(uint8_t chan, uint32_t period) {
-	oscillators[chan].period = (uint64_t)period * (F_SAMP << 16) / F_CPU;
+	oscillators[chan].period = period;
+	if(oscillators[chan].counter > period)
+		oscillators[chan].counter = 0;
 }
 
 unsigned long Coil::millis() {return _millis;}
