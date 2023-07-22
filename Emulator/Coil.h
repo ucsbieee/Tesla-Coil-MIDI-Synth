@@ -42,6 +42,16 @@ private:
 	// Emulate hardware oscillators in MCU
 	Oscillator oscillators[NVOICES];
 	
+	// Previous samples for simple IIR filtering
+	float prevX, prevY;
+	
+	// Simulate energy in resonant circuit
+	float energy;
+	
+	// Simulate spark hitting something
+	float spike;
+	bool lastState;
+	
 	// Keep track of current sample numbers
 	uint64_t sample;
 	uint64_t nextSynthUpdate;

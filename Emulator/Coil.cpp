@@ -7,6 +7,10 @@ Coil::Coil(uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), mid
 	sample = 0;
 	nextSynthUpdate = 0;
 	_millis = 0;
+	prevX = 0;
+	prevY = 0;
+	energy = 0;
+	spike = 0;
 }
 
 float Coil::getNextSample() {
@@ -33,7 +37,31 @@ float Coil::getNextSample() {
 	
 	sample++;
 	
-	return osc_state;
+	// Jolt when the spark first starts?
+	if(osc_state && !lastState)
+		spike = 0.7 + 0.1*((float)rand()/RAND_MAX);
+	lastState = osc_state;
+	
+	// Cause energy to increase or decrease based on state
+	if(osc_state)
+		energy += 1/(200e-6 * F_SAMP); // 200us rise time
+	else
+		energy -= 1/(100e-6 * F_SAMP); // 100us fall time
+	
+	energy = std::min(1.0f, std::max(0.0f, energy));
+	
+	// Decay spark
+	spike -= 1/(100e-6 * F_SAMP);
+	spike = std::max(0.0f, spike);
+	
+	float sample = energy*0.75 + spike*2 - 1;
+	
+	// Apply 10Hz high pass IIR filter
+	float y = (prevY - prevX + sample) * 0.9987;
+	prevY = y;
+	prevX = sample;
+	
+	return y;
 }
 
 void Coil::handleMIDI(const unsigned char *pass) {
