@@ -1,0 +1,15 @@
+6c6
+< namespace Synth {
+---
+> class Coil;
+7a8,13
+> class Synth {
+> public:
+> 
+> Synth(Coil *parent);
+> Coil *coil;
+> 
+29c35
+< }
+---
+> };

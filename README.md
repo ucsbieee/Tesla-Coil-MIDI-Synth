@@ -6,6 +6,10 @@ This program was originally intended for the [Arduino Due](https://docs.arduino.
 
 The device has six voices, which can each produce a single square wave tone at a variable duty cycle. They are ORed together to give a polyphonic effect.
 
+## Emulator
+
+There is also an emulator that can be compiled to run on a normal computer so that songs can be developed without the physical hardware.
+
 ## MIDI Information
 
 ### MIDI Channels

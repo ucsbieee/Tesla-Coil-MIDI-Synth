@@ -1,0 +1,74 @@
+4d3
+< #include "LCD.h"
+6d4
+< #include <Arduino.h>
+8c6
+< #include <MIDIUSB.h>
+---
+> #include <string.h>
+10c8
+< namespace MIDI {
+---
+> #include "Coil.h"
+11a10,11
+> MIDI::MIDI(Coil *parent): coil(parent) {
+> 
+43,45d42
+< // Buffer data coming in through hardware MIDI
+< unsigned char hwMIDIbuf[3], hwMIDIbufInd = 0;
+< 
+48a46,47
+> }
+> 
+338,346d336
+< 
+< #ifdef PRINTMIDI
+<   SerialUSB.print("MIDI: ");
+<   SerialUSB.print(byte1, HEX);
+<   SerialUSB.print(" ");
+<   SerialUSB.print(byte2, HEX);
+<   SerialUSB.print(" ");
+<   SerialUSB.println(byte3, HEX);
+< #endif
+348,354d337
+<   // Pass MIDI though to hardware port
+<   if(Serial.availableForWrite() >= 3) { // Rush E protection
+<     Serial.write(byte1);
+<     Serial.write(byte2);
+<     Serial.write(byte3);
+<   }
+< 
+357,361d339
+<   if(offsetChannel < CHANNEL_CLEAN || offsetChannel >= CHANNEL_INVALID) {
+<     LCD::MIDIping(-1);
+<     return;
+<   }
+<   LCD::MIDIping(channel);
+387,413d364
+< 
+< void initMIDI() {
+< #ifdef PRINTMIDI
+<   SerialUSB.begin(115200);
+< #endif
+< 
+<   // Physical MIDI interface
+<   Serial.begin(31250);
+< }
+< 
+< void processMIDI() {
+<   static midiEventPacket_t rx;
+<   rx = MidiUSB.read();
+<   if(rx.header) handleMIDI(rx.byte1, rx.byte2, rx.byte3);
+<   
+<   while(Serial.available()) {
+<     unsigned char d = Serial.read();
+<     if(d & 0x80) hwMIDIbufInd = 0;
+<     hwMIDIbuf[hwMIDIbufInd++] = d;
+<     if(hwMIDIbufInd >= 3) {
+<       hwMIDIbufInd = 0;
+<       handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
+<     }
+<   }
+< }
+< 
+< }
