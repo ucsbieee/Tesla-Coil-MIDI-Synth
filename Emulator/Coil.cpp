@@ -26,7 +26,7 @@ float Coil::getNextSample() {
 	for(int x = 0; x < NVOICES; x++) {
 		// Reset counter
 		if(oscillators[x].counter >= oscillators[x].period)
-			oscillators[x].counter %= std::max(1ULL, oscillators[x].period);
+			oscillators[x].counter %= std::max((uint64_t)1, oscillators[x].period);
 		
 		// Affect state
 		osc_state |= (oscillators[x].counter < oscillators[x].pulseWidth);

@@ -12,10 +12,10 @@ HEADERS=seded/MIDI.h seded/Synth.h patched/Voice.h Coil.h
 PORTAUDIO_CFLAGS:=$(shell pkg-config --cflags portaudiocpp)
 PORTAUDIO_LIBS:=$(shell pkg-config --libs portaudiocpp)
 
-# Specify libremidi based on your platform
+# Specify libremidi based on your platform (some auto-detection below)
 # see https://github.com/jcelerier/libremidi/blob/master/docs/header-only.md
-LIBREMIDI_CFLAGS:=-DLIBREMIDI_HEADER_ONLY=1 -DLIBREMIDI_COREAUDIO=1
-LIBREMIDI_LIBS:=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation
+LIBREMIDI_CFLAGS:=-DLIBREMIDI_HEADER_ONLY=1
+LIBREMIDI_LIBS:=
 
 INCLUDE=-I. -Ibuild/seded -Ibuild/patched -I$(MCU) -Ilibremidi/include
 LIBS=$(OTHER_LIBS) $(PORTAUDIO_LIBS) $(LIBREMIDI_LIBS)
@@ -24,6 +24,28 @@ CXXFLAGS=$(TARGET) -O2 -Wall -Wextra -Wno-unused-parameter -std=c++17 -DF_CPU=84
 OBJS:=$(SOURCES:%.cpp=build/%.o)
 HEADERS:=$(HEADERS:patched/%=build/patched/%)
 HEADERS:=$(HEADERS:seded/%=build/seded/%)
+
+# sed in-place command syntax
+INPLACE:=-i
+
+# OS-specific overrides
+UNAME:=$(shell uname)
+
+# macOS
+ifeq ($(UNAME), Darwin)
+	INPLACE:=-i '' # BSD sed requires different syntax
+	
+	# Configure libremidi
+	LIBREMIDI_CFLAGS+=-DLIBREMIDI_COREAUDIO=1
+	LIBREMIDI_LIBS+=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation
+endif
+
+# Linux
+ifeq ($(UNAME), Linux)
+	# Configure libremidi
+	LIBREMIDI_CFLAGS+=-DLIBREMIDI_ALSA=1
+	LIBREMIDI_LIBS+=-lasound -pthread
+endif
 
 # Link final executable
 $(BIN): main.cpp $(OBJS) $(HEADERS)
@@ -54,7 +76,7 @@ build/patched/%: $(MCU)/% patches/%.patch
 build/seded/%: build/patched/% sed-scripts/%.sed
 	@mkdir -p $(@D)
 	cp $< $@
-	sed -Ef $(word 2,$^) -i '' $@
+	sed -Ef $(word 2,$^) $(INPLACE) $@
 
 # Generate object files
 build/%.o: %.cpp $(HEADERS)
