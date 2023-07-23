@@ -18,8 +18,8 @@ LIBREMIDI_CFLAGS:=-DLIBREMIDI_HEADER_ONLY=1 -DLIBREMIDI_COREAUDIO=1
 LIBREMIDI_LIBS:=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation
 
 INCLUDE=-I. -Ibuild/seded -Ibuild/patched -I$(MCU) -Ilibremidi/include
-LIBS=$(PORTAUDIO_LIBS) $(LIBREMIDI_LIBS)
-CXXFLAGS=-O2 -Wall -Wextra -Wno-unused-parameter -std=c++17 -DF_CPU=84000000 $(INCLUDE) $(PORTAUDIO_CFLAGS) $(LIBREMIDI_CFLAGS)
+LIBS=$(OTHER_LIBS) $(PORTAUDIO_LIBS) $(LIBREMIDI_LIBS)
+CXXFLAGS=$(TARGET) -O2 -Wall -Wextra -Wno-unused-parameter -std=c++17 -DF_CPU=84000000 $(INCLUDE) $(PORTAUDIO_CFLAGS) $(LIBREMIDI_CFLAGS)
 
 OBJS:=$(SOURCES:%.cpp=build/%.o)
 HEADERS:=$(HEADERS:patched/%=build/patched/%)
@@ -28,6 +28,22 @@ HEADERS:=$(HEADERS:seded/%=build/seded/%)
 # Link final executable
 $(BIN): main.cpp $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(LIBS) -o $@ main.cpp $(OBJS)
+
+# Create macOS universal binary
+$(BIN)_universal: $(BIN)_x64 $(BIN)_arm64
+	lipo -create -output $@ $^
+	rm $(BIN)_x64 $(BIN)_arm64
+
+# Pull static libportaudio.a and libportaudiocpp.a files from static/x64 and static/arm64
+$(BIN)_x64:
+	TARGET="-target x86_64-apple-macos11" OTHER_LIBS=-Lstatic/x64 make -eB
+	rm -rf build
+	mv $(BIN) $@
+
+$(BIN)_arm64:
+	TARGET="-target arm64-apple-macos11" OTHER_LIBS=-Lstatic/arm64 make -eB
+	rm -rf build
+	mv $(BIN) $@
 
 # Patch microcontroller sources
 build/patched/%: $(MCU)/% patches/%.patch
@@ -49,10 +65,10 @@ build/%.o: build/%.cpp $(HEADERS)
 	@mkdir -p $(@D)
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
-.PHONY: clean patches
+.PHONY: clean patches $(BIN)_universal $(BIN)_x64 $(BIN)_arm64
 
 clean:
-	rm -rf $(BIN) build
+	rm -rf $(BIN) $(BIN)_* build
 
 # Create patches from edited files in build/patched
 patches:
