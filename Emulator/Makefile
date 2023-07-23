@@ -47,6 +47,20 @@ ifeq ($(UNAME), Linux)
 	LIBREMIDI_LIBS+=-lasound -pthread
 endif
 
+# Windows
+ifneq (,$(findstring NT,$(UNAME)))
+	# Configure libremidi
+	LIBREMIDI_CFLAGS+=-DLIBREMIDI_WINMM=1
+	LIBREMIDI_LIBS+=-lwinmm
+
+	# Windows is reluctant to reveal the value of PI
+	CXXFLAGS+=-D_USE_MATH_DEFINES
+
+	# Always make static build
+	LIBS+=-lole32 -lsetupapi
+	CXXFLAGS+=-static
+endif
+
 # Link final executable
 $(BIN): main.cpp $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ main.cpp $(OBJS) $(LIBS)
