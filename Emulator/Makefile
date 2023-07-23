@@ -49,7 +49,7 @@ endif
 
 # Link final executable
 $(BIN): main.cpp $(OBJS) $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(LIBS) -o $@ main.cpp $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ main.cpp $(OBJS) $(LIBS)
 
 # Create macOS universal binary
 $(BIN)_universal: $(BIN)_x64 $(BIN)_arm64
