@@ -1,3 +1,3 @@
 [submodule "Emulator/libremidi"]
 	path = Emulator/libremidi
-	url = git@github.com:jcelerier/libremidi.git
+	url = https://github.com/jcelerier/libremidi.git
