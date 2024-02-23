@@ -36,6 +36,7 @@ void loop() {
 
 extern "C" {
 int sysTickHook() { // Runs at 1kHz
+  MIDI::checkConnected();
   Synth::updateSynth();
   return 0;
 }

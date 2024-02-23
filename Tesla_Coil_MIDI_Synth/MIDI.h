@@ -138,6 +138,7 @@ void pitchBend(uint8_t channel, uint8_t low7, uint8_t high7);
 void cc(uint8_t channel, uint8_t control, uint8_t value);
 void handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3);
 void initMIDI();
+void checkConnected();
 void processMIDI();
 
 }

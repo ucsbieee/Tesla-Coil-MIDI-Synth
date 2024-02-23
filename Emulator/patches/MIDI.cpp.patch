@@ -20,8 +20,7 @@
 48a46,47
 > }
 > 
-338,346d336
-< 
+339,354d337
 < #ifdef PRINTMIDI
 <   SerialUSB.print("MIDI: ");
 <   SerialUSB.print(byte1, HEX);
@@ -30,7 +29,7 @@
 <   SerialUSB.print(" ");
 <   SerialUSB.println(byte3, HEX);
 < #endif
-348,354d337
+< 
 <   // Pass MIDI though to hardware port
 <   if(Serial.availableForWrite() >= 3) { // Rush E protection
 <     Serial.write(byte1);
@@ -44,7 +43,9 @@
 <     return;
 <   }
 <   LCD::MIDIping(channel);
-387,413d364
+385,409d362
+<   }
+< }
 < 
 < void initMIDI() {
 < #ifdef PRINTMIDI
@@ -68,6 +69,30 @@
 <       hwMIDIbufInd = 0;
 <       handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
 <     }
+412,438d364
+< 
+< void checkConnected() {
+<   static uint16_t lastFrameNumber;
+<   static int8_t missedFrameCount = -1;
+< 
+<   // Should increment at 1ms USB frame interval
+<   const uint16_t frameNumber = (UOTGHS->UOTGHS_DEVFNUM & UOTGHS_DEVFNUM_FNUM_Msk) >> UOTGHS_DEVFNUM_FNUM_Pos;
+< 
+<   if(frameNumber == lastFrameNumber) {
+<     // Only count missed frames if we have received some in the past
+<     if(missedFrameCount >= 0)
+<       missedFrameCount++;
+<   }
+< 
+<   else missedFrameCount = 0;
+< 
+<   lastFrameNumber = frameNumber;
+< 
+<   // Disable oscillators if we go more than 10ms without a USB frame
+<   if(missedFrameCount >= 10) {
+<     missedFrameCount = -1;
+<     for(int x=0; x<NVOICES; x++)
+<         Voice::voices[x].active = false;
 <   }
 < }
 < 
