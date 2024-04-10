@@ -56,7 +56,7 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
 
   const Drum::Drum *drum = NULL;
   if(channel == CHANNEL_DRUM) {
-    for(int x=0; x<sizeof(Drum::drumPresets)/sizeof(Drum::Drum); x++)
+    for(unsigned int x=0; x<sizeof(Drum::drumPresets)/sizeof(Drum::Drum); x++)
       if(Drum::drumPresets[x].midiNote == note) {
         drum = Drum::drumPresets+x;
         break;
@@ -70,14 +70,14 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
 
   // Arp notes should be combined
   if(channel == CHANNEL_ARP)
-    for(int x=0; x<NVOICES; x++)
+    for(unsigned int x=0; x<NVOICES; x++)
       if(Voice::voices[x].midiChannel == CHANNEL_ARP && (Voice::voices[x].midiNoteDown == Voice::voices[x].active)) {
         chosen = x;
         break;
       }
 
   // Use any unused voice
-  for(int x=0; chosen<0 && x<NVOICES; x++)
+  for(unsigned int x=0; chosen<0 && x<NVOICES; x++)
     if(!Voice::voices[x].active)
       chosen = x;
 
@@ -85,7 +85,7 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
   if(chosen < 0 && channel == CHANNEL_DRUM) {
     // Drum prefers to replace another drum
     unsigned long longest = 0;
-    for(int x=0; x<NVOICES; x++) {
+    for(unsigned int x=0; x<NVOICES; x++) {
       if(Voice::voices[x].midiChannel == CHANNEL_DRUM) {
         unsigned long dt = ms - Voice::voices[x].noteDownTimestamp;
         if(dt >= longest) {
@@ -99,7 +99,7 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
   if(chosen < 0) {
     // Replace oldtest note
     unsigned long longest = 0;
-    for(int x=0; x<NVOICES; x++) {
+    for(unsigned int x=0; x<NVOICES; x++) {
       unsigned long dt = ms - Voice::voices[x].noteDownTimestamp;
       if(dt >= longest) {
         chosen = x;
@@ -165,7 +165,7 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
         chosenVoice.arpNotesIndex--;
         break;
       }
-    if(chosenVoice.arpNotesIndex < 0 || chosenVoice.arpNotesIndex >= MAX_ARP_NOTES) chosenVoice.arpNotesIndex = MAX_ARP_NOTES-1;
+    if(chosenVoice.arpNotesIndex >= MAX_ARP_NOTES) chosenVoice.arpNotesIndex = MAX_ARP_NOTES-1;
     
   } else {
     memset(chosenVoice.arpNoteEndTimestamps, 0, sizeof(chosenVoice.arpNoteEndTimestamps));
@@ -198,7 +198,7 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
 void noteUp(uint8_t channel, uint8_t note) {
   Voice::voicesUpdating = 1;
 
-  for(int x=0; x<NVOICES; x++) {
+  for(unsigned int x=0; x<NVOICES; x++) {
     Voice::Voice &voice = Voice::voices[x];
     if(voice.midiChannel == channel) {
       if(channel == CHANNEL_ARP) {
@@ -221,7 +221,7 @@ void noteUp(uint8_t channel, uint8_t note) {
 }
 
 void aftertouch(uint8_t channel, uint8_t note, uint8_t vel) {
-  for(int x=0; x<NVOICES; x++) {
+  for(unsigned int x=0; x<NVOICES; x++) {
     Voice::Voice &voice = Voice::voices[x];
     if(voice.midiChannel == channel) {
       bool thisVoice = (voice.midiNote == note);
@@ -243,7 +243,7 @@ void aftertouch(uint8_t channel, uint8_t note, uint8_t vel) {
 
 void pitchBend(uint8_t channel, uint8_t low7, uint8_t high7) {
   int16_t pb = (int16_t)(((int16_t)high7)<<7 | low7) - 0x2000;
-  for(int x=0; x<NVOICES; x++) {
+  for(unsigned int x=0; x<NVOICES; x++) {
     Voice::Voice &voice = Voice::voices[x];
     if(voice.midiChannel == channel)
       voice.midiPB = pb;
@@ -251,10 +251,12 @@ void pitchBend(uint8_t channel, uint8_t low7, uint8_t high7) {
 }
 
 void cc(uint8_t channel, uint8_t control, uint8_t value) {
+  (void)channel; // Unused
+
   switch(control) {
     case 120: // All sound/oscillators off
     case 123:
-      for(int x=0; x<NVOICES; x++)
+      for(unsigned int x=0; x<NVOICES; x++)
         Voice::voices[x].active = false;
       break;
     case 121: // Reset stuff to initial values
@@ -430,7 +432,7 @@ void checkConnected() {
   // Disable oscillators if we go more than 10ms without a USB frame
   if(missedFrameCount >= 10) {
     missedFrameCount = -1;
-    for(int x=0; x<NVOICES; x++)
+    for(unsigned int x=0; x<NVOICES; x++)
         Voice::voices[x].active = false;
   }
 }

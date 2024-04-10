@@ -91,7 +91,7 @@
 <   // Disable oscillators if we go more than 10ms without a USB frame
 <   if(missedFrameCount >= 10) {
 <     missedFrameCount = -1;
-<     for(int x=0; x<NVOICES; x++)
+<     for(unsigned int x=0; x<NVOICES; x++)
 <         Voice::voices[x].active = false;
 <   }
 < }

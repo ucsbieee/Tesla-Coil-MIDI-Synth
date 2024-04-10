@@ -36,7 +36,7 @@ void updateSynth() {
   
   // Update voices
   int totalEnv = 0;
-  for(int x=0; x<NVOICES; x++) {
+  for(unsigned int x=0; x<NVOICES; x++) {
     Voice::Voice &voice = Voice::voices[x];
     
     if(voice.active) {
@@ -123,7 +123,7 @@ void updateSynth() {
         if(voice.midiNoteDown) {
           voice.midiNoteDown = false;
           for(int y=0; y<MAX_ARP_NOTES; y++)
-            if((int64_t)voice.arpNoteEndTimestamps[y] - (int64_t)ARPEGGIO_LINGER > ms) {
+            if((int64_t)voice.arpNoteEndTimestamps[y] - (int64_t)ARPEGGIO_LINGER > (int64_t)ms) {
               voice.midiNoteDown = true;
               break;
             }
@@ -187,7 +187,7 @@ void updateSynth() {
 #endif
 
   // Iterate through voices again to update the timers
-  for(int x=0; x<NVOICES; x++) {
+  for(unsigned int x=0; x<NVOICES; x++) {
     Voice::Voice &voice = Voice::voices[x];
     
     if(voice.active) {

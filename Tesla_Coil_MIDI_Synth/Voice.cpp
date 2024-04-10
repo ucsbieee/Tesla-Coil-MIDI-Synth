@@ -19,7 +19,7 @@ void initVoices() {
   PMC->PMC_PCER1 = (1<<(ID_TC5-32));
 
   // Init timers
-  for(int x=0; x<NVOICES; x++) {
+  for(unsigned int x=0; x<NVOICES; x++) {
     if(voiceConfigs[x].peripheralab) voiceConfigs[x].port->PIO_ABSR |= (1<<voiceConfigs[x].portN); // Select peripheral B
     else voiceConfigs[x].port->PIO_ABSR &= ~(1<<voiceConfigs[x].portN); // Select peripheral A
     voiceConfigs[x].port->PIO_PDR = (1<<voiceConfigs[x].portN); // Disable PIO control, allow peripheral to use it

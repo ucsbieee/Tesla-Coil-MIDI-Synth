@@ -18,6 +18,145 @@ LiquidCrystal lcd(19, 18, 17, 16, 23, 24);
 DueFlashStorage DFS;
 #endif
 
+const LCD_screen_descriptor screens[] = {
+  { // SCREEN_PULSE_WIDTH
+    "P Width: ",
+    "%",
+    NULL,
+    NULL, // Special
+    NULL,
+    0
+  },
+  { // SCREEN_A
+    "Attack",
+    "ms",
+    &displayTypeUINT32,
+    (void*)&MIDI::attack,
+    &MIDI::attackCC,
+    ATTACK_CC
+  },
+  { // SCREEN_D
+    "Decay",
+    "ms",
+    &displayTypeUINT32,
+    (void*)&MIDI::decay,
+    &MIDI::decayCC,
+    DECAY_CC
+  },
+  { // SCREEN_S
+    "Sustain",
+    "%",
+    &displayTypeUINT8scaled,
+    (void*)&MIDI::sustain,
+    &MIDI::sustainCC,
+    SUSTAIN_CC
+  },
+  { // SCREEN_R
+    "Release",
+    "ms",
+    &displayTypeUINT32,
+    (void*)&MIDI::release,
+    &MIDI::releaseCC,
+    RELEASE_CC
+  },
+  { // SCREEN_TREM_DEPTH
+    "Trem Depth",
+    "%",
+    &displayTypeUINT8scaled,
+    (void*)&MIDI::tremoloDepth,
+    &MIDI::tremoloDepthCC,
+    TREMOLO_DEPTH_CC
+  },
+  { // SCREEN_TREM_PERIOD
+    "Trem Speed",
+    "Hz",
+    &displayTypeUINT32Hz,
+    (void*)&MIDI::tremoloPeriod,
+    &MIDI::tremoloPeriodCC,
+    TREMOLO_PERIOD_CC
+  },
+  { // SCREEN_TREM_DELAY
+    "Trem Delay",
+    "ms",
+    &displayTypeUINT32,
+    (void*)&MIDI::tremoloDelay,
+    &MIDI::tremoloDelayCC,
+    TREMOLO_DELAY_CC
+  },
+  { // SCREEN_VIBR_DEPTH
+    "Vibr Depth",
+    "%",
+    &displayTypeUINT8scaled,
+    (void*)&MIDI::vibratoDepth,
+    &MIDI::vibratoDepthCC,
+    VIBRATO_DEPTH_CC
+  },
+  { // SCREEN_VIBR_PERIOD
+    "Vibr Speed",
+    "Hz",
+    &displayTypeUINT32Hz,
+    (void*)&MIDI::vibratoPeriod,
+    &MIDI::vibratoPeriodCC,
+    VIBRATO_PERIOD_CC
+  },
+  { // SCREEN_VIBR_DELAY
+    "Vibr Delay",
+    "ms",
+    &displayTypeUINT32,
+    (void*)&MIDI::vibratoDelay,
+    &MIDI::vibratoDelayCC,
+    VIBRATO_DELAY_CC
+  },
+  { // SCREEN_ARP_PERIOD
+    "Arp Speed",
+    "Hz",
+    &displayTypeUINT32Hz,
+    (void*)&MIDI::arpeggioPeriod,
+    &MIDI::arpeggioPeriodCC,
+    ARPEGGIO_CC
+  },
+  { // SCREEN_MIDI_MIN_NOTE
+    "Min Note",
+    "",
+    NULL,
+    NULL,
+    NULL,
+    0
+  },
+  { // SCREEN_MIDI_MAX_NOTE
+    "Max Note",
+    "",
+    NULL,
+    NULL,
+    NULL,
+    0
+  },
+  { // SCREEN_MIDI_BASE
+    "MIDI Base CH",
+    "",
+    &displayTypeMIDIchannel,
+    &MIDI::MIDIbaseChannel,
+    NULL,
+    0
+  }
+};
+
+// Note name sequence
+const char *noteNames[] = {
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+};
+
 unsigned long LCDframe = 0;
 unsigned long lastLCDframe = 0;
 unsigned long lastMIDIping = -MIDI_PING_LINGER;
