@@ -1,8 +1,8 @@
 # UCSB IEEE Tesla Coil MIDI Synthesizer
 
-This is an Arduino program to convert MIDI data to pulses to drive the Tesla Coil. The Arduino enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file.
+This is the firmware and design files for a device to convert MIDI data to pulses to drive a Tesla Coil. It enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file.
 
-This program was originally intended for the [Arduino Due](https://docs.arduino.cc/hardware/due) (see the old version in `Tesla_Coil_MIDI_Synth_DUE`). A circuit board has since been designed for it using the similar SAM3A4C MCU (see [this repo](https://github.com/ucsbieee/ArduinoCore-SAM3A4C) for an Arduino IDE board definition), which has a fiber optic output for the big DRSSTC and a BNC port for the small Tesla Coil. It also has isolated physical MIDI in/out ports for connecting other instruments or daisy-chaining more MIDI interrupters.
+The circuit board is based off of the [Arduino Due](https://docs.arduino.cc/hardware/due). It uses the similar SAM3A4C MCU, and has a fiber optic output for the big DRSSTC and a BNC port for the small Tesla Coil. It also has isolated physical MIDI in/out ports for connecting other instruments or daisy-chaining more MIDI interrupters. See [ucsbieee/ArduinoCore-SAM3A4C](https://github.com/ucsbieee/ArduinoCore-SAM3A4C) for an Arduino IDE board definition.
 
 The device has six voices, which can each produce a single square wave tone at a variable duty cycle. They are ORed together to give a polyphonic effect.
 
