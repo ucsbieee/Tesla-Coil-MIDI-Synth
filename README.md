@@ -8,6 +8,10 @@ The circuit board is based off of the [Arduino Due](https://docs.arduino.cc/hard
 
 The device has six voices, which can each produce a single square wave tone at a variable duty cycle. They are ORed together to give a polyphonic effect.
 
+## Uploading Firmware
+
+New firmware can be uploaded using the Arduino IDE and the aforementioned [board definition](https://github.com/ucsbieee/ArduinoCore-SAM3A4C), or the [latest release](https://github.com/ucsbieee/Tesla-Coil-MIDI-Synth/releases/latest) (`.bin` file) can be uploaded using [BOSSA](https://github.com/shumatech/BOSSA) ([available from Homebrew](https://formulae.brew.sh/formula/bossa)).
+
 ## Emulator
 
 There is also an emulator that can be compiled to run on a normal computer so that songs can be developed without the physical hardware.
