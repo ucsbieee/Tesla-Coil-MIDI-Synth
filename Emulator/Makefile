@@ -66,6 +66,7 @@ $(BIN): main.cpp $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ main.cpp $(OBJS) $(LIBS)
 
 # Create macOS universal binary
+.NOTPARALLEL: $(BIN)_universal
 $(BIN)_universal: $(BIN)_x64 $(BIN)_arm64
 	lipo -create -output $@ $^
 	rm $(BIN)_x64 $(BIN)_arm64
@@ -84,7 +85,8 @@ $(BIN)_arm64:
 # Patch microcontroller sources
 build/patched/%: $(MCU)/% patches/%.patch
 	@mkdir -p $(@D)
-	@patch -o $@ $^
+	@cp $< $@
+	@patch $@ $(word 2,$^)
 
 # Modify files with sed
 build/seded/%: build/patched/% sed-scripts/%.sed
