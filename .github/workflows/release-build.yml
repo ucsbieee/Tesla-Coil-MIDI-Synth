@@ -1,0 +1,129 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ github.ref_name }}" --draft --generate-notes
+
+  build-firmware:
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install arduino-cli
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew update
+          brew install arduino-cli
+      - name: Install Arduino core
+        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli core install "UCSB IEEE:sam" --additional-urls "https://raw.githubusercontent.com/ucsbieee/ArduinoCore-SAM3A4C/master/package_TC-controller-3A4C_index.json"
+      - name: Install Arduino libraries
+        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli lib install LiquidCrystal DueFlashStorage MIDIUSB
+      - name: Build
+        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli compile --warnings all -b "UCSB IEEE:sam:TC_controller" -e Tesla_Coil_MIDI_Synth
+      - name: Upload
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUTNAME="Tesla_Coil_MIDI_Synth-${{ github.ref_name }}.bin"
+          mv "Tesla_Coil_MIDI_Synth/build/UCSB IEEE.sam.TC_controller/Tesla_Coil_MIDI_Synth.ino.bin" "$OUTNAME"
+          gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
+
+  build-emulator-linux:
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: sudo apt install portaudio19-dev libasound2-dev
+      - name: Build
+        run: make -C Emulator -j
+      - name: Upload
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUTNAME="tcsynth-${{ github.ref_name }}-$(uname -sm | tr ' ' -)"
+          mv Emulator/tcsynth "$OUTNAME"
+          gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
+
+  build-emulator-macos:
+    runs-on: macos-latest
+    needs: create-release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install portaudio coreutils
+
+          mkdir -p Emulator/static/x64 Emulator/static/arm64
+
+          curl -sL https://formulae.brew.sh/api/formula/portaudio.json -o portaudio.json
+          ARM_VERSION=$(jq -r '.bottle.stable.files | to_entries[] | .key' portaudio.json | grep -i '^arm64_' | fgrep -ivm1 linux)
+          X64_VERSION=$(jq -r '.bottle.stable.files | to_entries[] | .key' portaudio.json | grep -Eivm1 '^arm64_|linux')
+
+          echo Using $ARM_VERSION for arm64
+          echo Using $X64_VERSION for x64
+
+          jq -r ".bottle.stable.files.$ARM_VERSION.url" portaudio.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/arm64 --strip-components=3 '*/libportaudio*.a'
+          jq -r ".bottle.stable.files.$X64_VERSION.url" portaudio.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/x64 --strip-components=3 '*/libportaudio*.a'
+      - name: Build
+        run: make -C Emulator -j tcsynth_universal
+      - name: Upload
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUTNAME="tcsynth-${{ github.ref_name }}-macOS-universal"
+          mv Emulator/tcsynth_universal "$OUTNAME"
+          gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
+
+  build-emulator-windows:
+    runs-on: windows-latest
+    needs: create-release
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            make
+            pkgconf
+            patch
+            mingw-w64-x86_64-portaudio
+            mingw-w64-x86_64-toolchain
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Fix symlinks
+        run: |
+          export MSYS=winsymlinks:nativestrict
+          git config core.symlinks true
+          git restore .
+      - name: Build
+        run: make -C Emulator -j
+      - name: Upload
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUTNAME="tcsynth-${{ github.ref_name }}-Windows-$(uname -m).exe"
+          mv Emulator/tcsynth.exe "$OUTNAME"
+          gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
