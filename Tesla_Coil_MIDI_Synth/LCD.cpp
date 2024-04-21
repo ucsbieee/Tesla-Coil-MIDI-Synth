@@ -2,6 +2,7 @@
 #include "BarChars.h"
 #include "Knob.h"
 #include "MIDI.h"
+#include "Version.h"
 
 #include <Arduino.h>
 #include <LiquidCrystal.h>
@@ -169,6 +170,8 @@ uint8_t volumeBar[16], lastVolumeBar[16];
 
 unsigned long framesSinceLastInput = 0;
 
+bool showingSplashScreen = true;
+
 void initLCD() {
   lcd.begin(16, 2);
 
@@ -188,12 +191,29 @@ void initLCD() {
     DFS.write(0, 0);
   }
 #endif
+
+  // Show firmware version
+  lcd.setCursor(0, 0);
+  lcd.print("FW " VERSION
+#ifndef RELEASE_BUILD
+  "-dev"
+#endif
+  );
+  lcd.setCursor(0, 1);
+  lcd.print(__DATE__);
 }
 
 void updateLCD() {
   unsigned long ms = millis();
   if(ms-lastLCDframe < LCD_UPDATE_PERIOD) return;
   lastLCDframe = ms;
+
+  if(showingSplashScreen) {
+    if(ms > 1000) {
+      showingSplashScreen = false;
+      lcd.clear();
+    } else return;
+  }
 
   const LCD_screen_descriptor &screen = screens[LCDstate];
 

@@ -30,7 +30,7 @@ jobs:
       - name: Install Arduino libraries
         run: /home/linuxbrew/.linuxbrew/bin/arduino-cli lib install LiquidCrystal DueFlashStorage MIDIUSB
       - name: Build
-        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli compile --warnings all -b "UCSB IEEE:sam:TC_controller" -e Tesla_Coil_MIDI_Synth
+        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli compile --warnings all --clean -b "UCSB IEEE:sam:TC_controller" --build-property "build.extra_flags=-D__SAM3A4C__ -DRELEASE_BUILD -mthumb {build.usb_flags}" -e Tesla_Coil_MIDI_Synth
       - name: Upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
