@@ -172,7 +172,7 @@ unsigned long framesSinceLastInput = 0;
 void initLCD() {
   lcd.begin(16, 2);
 
-  for(uint8_t x=0; x<sizeof(BarChars)/sizeof(LCDchar); x++) {
+  for(uint8_t x=0; x<NBARCHARS; x++) {
     uint8_t temp[8];
     memcpy(temp, BarChars[x].data, 8); // Un-const
     lcd.createChar(BarChars[x].value, temp);

@@ -5,7 +5,7 @@ BIN=tcsynth
 MCU=../Tesla_Coil_MIDI_Synth
 
 # Files to compile and patch if necessary
-SOURCES=seded/MIDI.cpp seded/Synth.cpp Coil.cpp
+SOURCES=seded/MIDI.cpp seded/Synth.cpp Drum.cpp Coil.cpp
 HEADERS=seded/MIDI.h seded/Synth.h patched/Voice.h Coil.h
 
 # Get portaudio flags from pkg-config
@@ -100,6 +100,10 @@ build/%.o: %.cpp $(HEADERS)
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 build/%.o: build/%.cpp $(HEADERS)
+	@mkdir -p $(@D)
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+build/%.o: $(MCU)/%.cpp $(HEADERS)
 	@mkdir -p $(@D)
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 

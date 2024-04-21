@@ -52,18 +52,11 @@ typedef struct {
   bool timerab;
 } VoiceConfig;
 
-static const VoiceConfig voiceConfigs[] = {
-  {TC0, &TC0->TC_CHANNEL[0], PIOB, 25, 1, 0},
-  {TC0, &TC0->TC_CHANNEL[1], PIOA, 2 , 0, 0},
-  {TC0, &TC0->TC_CHANNEL[2], PIOA, 5 , 0, 0},
-  {TC1, &TC1->TC_CHANNEL[0], PIOB, 0,  1, 0},
-  {TC1, &TC1->TC_CHANNEL[1], PIOB, 2,  1, 0},
-  {TC1, &TC1->TC_CHANNEL[2], PIOB, 4,  1, 0}
-};
+#define NVOICES 6
 
-#define NVOICES (sizeof(::Voice::voiceConfigs)/sizeof(::Voice::VoiceConfig))
+extern const VoiceConfig voiceConfigs[NVOICES];
 
-extern Voice voices[];
+extern Voice voices[NVOICES];
 extern volatile uint8_t voicesUpdating;
 
 // Functions
