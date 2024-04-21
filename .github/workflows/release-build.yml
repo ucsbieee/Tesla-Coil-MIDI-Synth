@@ -47,9 +47,11 @@ jobs:
         with:
           submodules: true
       - name: Install dependencies
-        run: sudo apt install portaudio19-dev libasound2-dev
+        run: |
+          sudo apt update
+          sudo apt install -y portaudio19-dev libasound2-dev
       - name: Build
-        run: make -C Emulator -j
+        run: make -C Emulator -j`nproc`
       - name: Upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -82,7 +84,7 @@ jobs:
           jq -r ".bottle.stable.files.$ARM_VERSION.url" portaudio.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/arm64 --strip-components=3 '*/libportaudio*.a'
           jq -r ".bottle.stable.files.$X64_VERSION.url" portaudio.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/x64 --strip-components=3 '*/libportaudio*.a'
       - name: Build
-        run: make -C Emulator -j tcsynth_universal
+        run: make -C Emulator -j`nproc` tcsynth_universal
       - name: Upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -107,6 +109,7 @@ jobs:
             make
             pkgconf
             patch
+            coreutils
             mingw-w64-x86_64-portaudio
             mingw-w64-x86_64-toolchain
       - uses: actions/checkout@v4
@@ -118,7 +121,7 @@ jobs:
           git config core.symlinks true
           git restore .
       - name: Build
-        run: make -C Emulator -j
+        run: make -C Emulator -j`nproc`
       - name: Upload
         shell: bash
         env:
