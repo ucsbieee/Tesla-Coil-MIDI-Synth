@@ -1,26 +1,16 @@
 #include <algorithm>
+#include <cstring>
 
 #include "Coil.h"
+#include "AudioEngine.h"
 
-Coil::Coil(uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), midi(this), synth(this) {
+Coil::Coil(uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), _millis(0), midi(this), synth(this), voicesUpdating(0) {
 	midi.MIDIbaseChannel = MIDIbaseChannel;
-	sample = 0;
-	nextSynthUpdate = 0;
-	_millis = 0;
-	prevX = 0;
-	prevY = 0;
-	energy = 0;
-	spike = 0;
+	memset(oscillators, 0, sizeof(oscillators));
+	memset(voices, 0, sizeof(voices));
 }
 
-float Coil::getNextSample() {
-	// Update synth state at 1kHz
-	if(sample >= nextSynthUpdate) {
-		synth.updateSynth();
-		nextSynthUpdate = sample + F_SAMP/1000;
-		_millis++;
-	}
-	
+bool Coil::getNextSample() {
 	// Logical OR all oscillators like the real controller
 	bool osc_state = false;
 	for(int x = 0; x < NVOICES; x++) {
@@ -34,38 +24,17 @@ float Coil::getNextSample() {
 		// Increment counter
 		oscillators[x].counter += F_CPU/F_SAMP;
 	}
-	
-	sample++;
-	
-	// Jolt when the spark first starts?
-	if(osc_state && !lastState)
-		spike = 0.7 + 0.1*((float)rand()/RAND_MAX);
-	lastState = osc_state;
-	
-	// Cause energy to increase or decrease based on state
-	if(osc_state)
-		energy += 1/(200e-6 * F_SAMP); // 200us rise time
-	else
-		energy -= 1/(100e-6 * F_SAMP); // 100us fall time
-	
-	energy = std::min(1.0f, std::max(0.0f, energy));
-	
-	// Decay spark
-	spike -= 1/(100e-6 * F_SAMP);
-	spike = std::max(0.0f, spike);
-	
-	float sample = energy*0.75 + spike*2 - 1;
-	
-	// Apply 10Hz high pass IIR filter
-	float y = (prevY - prevX + sample) * 0.9987;
-	prevY = y;
-	prevX = sample;
-	
-	return y;
+
+	return osc_state;
 }
 
 void Coil::handleMIDI(const unsigned char *pass) {
 	midi.handleMIDI(pass[0], pass[1], pass[2]);
+}
+
+void Coil::updateSynth() {
+	_millis++;
+	synth.updateSynth();
 }
 
 // The following functions emulate the behavior of the real timer update functions

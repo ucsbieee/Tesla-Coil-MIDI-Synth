@@ -5,9 +5,6 @@
 #include "Synth.h"
 #include "Voice.h"
 
-#define F_SAMP 48000ULL
-#define FRAMES_PER_BUFFER 256
-
 // Class representing a single MIDI controller/Tesla coil pair
 class Coil {
 public:
@@ -20,13 +17,16 @@ public:
 	Coil(uint8_t MIDIbaseChannel = 0, AudioOutputMode aoMode = BOTH);
 	
 	// Call once for each subsequent sample
-	float getNextSample();
+	bool getNextSample();
 
 	// What audio mode has been assigned to this coil
 	AudioOutputMode aoMode;
 	
 	// Pass MIDI into internal MIDI class
 	void handleMIDI(const unsigned char *pass);
+
+	// Update synth state
+	void updateSynth();
 	
 	// Prevent copying (will break references of subclasses to us)
 	Coil(const Coil&) = delete;
@@ -41,20 +41,6 @@ private:
 
 	// Emulate hardware oscillators in MCU
 	Oscillator oscillators[NVOICES];
-	
-	// Previous samples for simple IIR filtering
-	float prevX, prevY;
-	
-	// Simulate energy in resonant circuit
-	float energy;
-	
-	// Simulate spark hitting something
-	float spike;
-	bool lastState;
-	
-	// Keep track of current sample numbers
-	uint64_t sample;
-	uint64_t nextSynthUpdate;
 	
 	// millis() time
 	unsigned long _millis;
