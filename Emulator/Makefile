@@ -61,6 +61,11 @@ ifneq (,$(findstring NT,$(UNAME)))
 	CXXFLAGS+=-static
 endif
 
+# Check for release build
+ifdef RELEASE_BUILD
+	CXXFLAGS+=-DRELEASE_BUILD
+endif
+
 # Link final executable
 $(BIN): main.cpp $(OBJS) $(HEADERS)
 	$(CXX) $(CXXFLAGS) -o $@ main.cpp $(OBJS) $(LIBS)

@@ -9,6 +9,7 @@
 
 #include "Coil.h"
 #include "AudioEngine.h"
+#include "Version.h"
 
 using namespace std;
 
@@ -42,8 +43,14 @@ int main(int argc, char **argv) {
 		string arg(argv[x]);
 		if(arg == "--stereo") ncoils = 2;
 		else {
+			cout << "UCSB IEEE Tesla Coil Interrupter Emulator " VERSION
+#ifndef RELEASE_BUILD
+			"-dev"
+#endif
+			<< endl;
 			cout << "Usage: " << argv[0] << " [--stereo]" << endl;
 			cout << "\t--stereo: Emulate two coils, one on each audio channel. The right coil responds to MIDI channels 5+." << endl;
+			return 1;
 		}
 	}
 
