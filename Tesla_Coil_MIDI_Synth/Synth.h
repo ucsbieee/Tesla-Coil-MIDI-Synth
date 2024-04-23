@@ -1,5 +1,4 @@
-#ifndef SYNTH_H
-#define SYNTH_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -27,5 +26,3 @@ void initSynth();
 void updateSynth();
 
 }
-
-#endif

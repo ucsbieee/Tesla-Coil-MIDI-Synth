@@ -1,6 +1,3 @@
-#ifndef VERSION_H
-#define VERSION_H
+#pragma once
 
 #define VERSION "v1.1"
-
-#endif

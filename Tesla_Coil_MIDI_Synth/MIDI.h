@@ -1,5 +1,4 @@
-#ifndef MIDI_H
-#define MIDI_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -142,4 +141,3 @@ void checkConnected();
 void processMIDI();
 
 }
-#endif

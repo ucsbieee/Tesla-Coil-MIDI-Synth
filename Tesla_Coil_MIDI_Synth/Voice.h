@@ -1,5 +1,4 @@
-#ifndef VOICE_H
-#define VOICE_H
+#pragma once
 
 #include <inttypes.h>
 #include <sam.h>
@@ -63,5 +62,3 @@ extern volatile uint8_t voicesUpdating;
 void initVoices();
 
 }
-
-#endif

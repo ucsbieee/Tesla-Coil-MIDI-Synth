@@ -1,5 +1,4 @@
-#ifndef BARCHARS_H
-#define BARCHARS_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -27,5 +26,3 @@ typedef struct {
 
 #define NBARCHARS 6
 extern const LCDchar BarChars[NBARCHARS];
-
-#endif

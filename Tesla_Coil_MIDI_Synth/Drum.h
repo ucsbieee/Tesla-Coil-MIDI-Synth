@@ -1,5 +1,4 @@
-#ifndef DRUM_H
-#define DRUM_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -26,5 +25,3 @@ typedef struct {
 extern const Drum drumPresets[NDRUMS];
 
 }
-
-#endif

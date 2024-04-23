@@ -1,5 +1,4 @@
-#ifndef AUDIO_ENGINE_H
-#define AUDIO_ENGINE_H
+#pragma once
 
 #include <list>
 #include <atomic>
@@ -59,5 +58,3 @@ protected:
 	// Apply IR filter
 	void genOutput();
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef KNOB_H
-#define KNOB_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -12,5 +11,3 @@ void initEncoder();
 void updateKnob();
 
 }
-
-#endif

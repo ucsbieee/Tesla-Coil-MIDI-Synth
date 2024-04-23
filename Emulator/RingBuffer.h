@@ -1,5 +1,4 @@
-#ifndef RING_BUFFER_H
-#define RING_BUFFER_H
+#pragma once
 
 #include <array>
 
@@ -36,5 +35,3 @@ public:
 		return ret;
 	}
 };
-
-#endif

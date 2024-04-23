@@ -1,5 +1,4 @@
-#ifndef COIL_H
-#define COIL_H
+#pragma once
 
 #include "MIDI.h"
 #include "Synth.h"
@@ -62,5 +61,3 @@ protected:
 	friend class MIDI;
 	friend class Synth;
 };
-
-#endif

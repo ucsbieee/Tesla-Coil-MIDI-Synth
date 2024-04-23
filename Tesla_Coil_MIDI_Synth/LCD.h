@@ -1,5 +1,4 @@
-#ifndef LCD_H
-#define LCD_H
+#pragma once
 
 #include "Synth.h"
 #include "MIDI.h"
@@ -71,5 +70,3 @@ void updateLCD();
 void MIDIping(int8_t c);
 
 }
-
-#endif
