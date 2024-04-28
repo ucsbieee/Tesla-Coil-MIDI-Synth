@@ -6,7 +6,10 @@
 
 using namespace std;
 
-AudioEngine::AudioEngine(list<Coil> &coils): coils(coils) {}
+AudioEngine::AudioEngine(list<Coil> &coils): coils(coils) {
+	for(size_t chan = 0; chan < CHANNELS; chan++)
+		conv.emplace_back(ir, IR_LENGTH, FRAMES_PER_BUFFER);
+}
 
 AudioEngine::~AudioEngine() {
 	stopStream();
@@ -126,7 +129,15 @@ void AudioEngine::genOutput() {
 	if(inputBuffer.size() < FRAMES_PER_BUFFER*CHANNELS)
 		return;
 
-	// TODO: process
-	for(size_t count = FRAMES_PER_BUFFER*CHANNELS; count; count--)
-		outputBuffer.push(inputBuffer.pop());
+	for(size_t count = 0; count < FRAMES_PER_BUFFER; count++)
+		for(size_t chan = 0; chan < CHANNELS; chan++)
+			conv[chan].feedSample(inputBuffer.pop());
+
+	const float *output[CHANNELS];
+	for(size_t chan = 0; chan < CHANNELS; chan++)
+		output[chan] = conv[chan].getOutput();
+
+	for(size_t count = 0; count < FRAMES_PER_BUFFER; count++)
+		for(size_t chan = 0; chan < CHANNELS; chan++)
+			outputBuffer.push(output[chan][count]);
 }

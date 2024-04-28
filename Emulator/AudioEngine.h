@@ -5,12 +5,13 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
-#include <queue>
+#include <deque>
 #include <memory>
 
 #include <portaudiocpp/PortAudioCpp.hxx>
 
 #include "Coil.h"
+#include "Convolution.h"
 #include "RingBuffer.h"
 
 #define F_SAMP 48000
@@ -20,8 +21,13 @@
 #define MIN_FIFO_SIZE (FRAMES_PER_BUFFER*CHANNELS*2)
 #define MAX_FIFO_SIZE (FRAMES_PER_BUFFER*CHANNELS*4)
 
-#define VOLUME 0.5f
-#define STEREO_SEPARATION 0.25f
+#define VOLUME 0.8f
+#define STEREO_SEPARATION 0.4f
+
+// Impulse response data loaded from ir.bin
+// Data has been pre-FFTed, so length is actually 2*(IR_LENGTH/2+1) = 4098 floats in RE-IM-RE-IM format
+#define IR_LENGTH 4096
+extern const float ir[IR_LENGTH/2+1];
 
 class AudioEngine {
 public:
@@ -46,10 +52,14 @@ protected:
 	unsigned long sample; // Index of last sample generated
 	unsigned long lastUpdateSample; // Index of last sample when synth was updated
 	std::chrono::steady_clock::time_point wakeTime; // Time when generator thread should wake up
-	constexpr static std::chrono::duration wakePeriod = std::chrono::milliseconds(1);
+	constexpr static std::chrono::duration wakePeriod = std::chrono::microseconds(500);
 	std::atomic<bool> runGenerator;
 	std::unique_ptr<std::thread> generator;
 
+	// Convolution objects to apply IR filter to each channel
+	std::deque<Convolution> conv;
+
+	// Thread function
 	void generatorThread();
 
 	// Generate a single unprocessed sample

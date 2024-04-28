@@ -6,6 +6,7 @@ This folder contains code to patch/modify the software that runs on the microcon
 
 Prerequisites
  * [`portaudiocpp`](https://github.com/PortAudio/portaudio)
+ * [`fftw`](https://www.fftw.org)
  * [`libremidi`](https://github.com/jcelerier/libremidi)
  * GNU `make`
  * `patch`
@@ -18,7 +19,7 @@ Running `make` will take the code from the main firmware in this repo, apply som
 
 ## Using
 
-When the program is run, it will ask you for an audio output device and a MIDI input device. Set the audio output device to your headphones and the MIDI input to a loopback device coming out of your DAW. It should respond exactly like the real MIDI controller since it's the exact same code. The sound output is pure square waves, lacking "coloring" from the Tesla coil, but that could probably be approximated by a simple FIR filter...
+When the program is run, it will ask you for an audio output device and a MIDI input device. Set the audio output device to your headphones and the MIDI input to a loopback device coming out of your DAW. It should respond exactly like the real MIDI controller since it's the exact same code. The sound is approximated using an FIR filter.
 
 If run with the `--stereo` flag, the program will emulate two Tesla coil controllers, one panned to the left and the other to the right. The right one responds to MIDI channels starting at 5 instead of 1.
 

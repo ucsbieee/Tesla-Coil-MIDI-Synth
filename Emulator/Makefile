@@ -5,12 +5,14 @@ BIN=tcsynth
 MCU=../Tesla_Coil_MIDI_Synth
 
 # Files to compile and patch if necessary
-SOURCES=seded/MIDI.cpp seded/Synth.cpp Drum.cpp Coil.cpp AudioEngine.cpp
-HEADERS=seded/MIDI.h seded/Synth.h patched/Voice.h Coil.h AudioEngine.h RingBuffer.h
+SOURCES=seded/MIDI.cpp seded/Synth.cpp Drum.cpp Coil.cpp AudioEngine.cpp Convolution.cpp ir.s
+HEADERS=seded/MIDI.h seded/Synth.h patched/Voice.h Coil.h AudioEngine.h Convolution.h RingBuffer.h
 
 # Get portaudio flags from pkg-config
 PORTAUDIO_CFLAGS:=$(shell pkg-config --cflags portaudiocpp)
 PORTAUDIO_LIBS:=$(shell pkg-config --libs portaudiocpp)
+FFTW3_CFLAGS:=$(shell pkg-config --cflags fftw3)
+FFTW3_LIBS:=$(shell pkg-config --libs fftw3) -lfftw3f
 
 # Specify libremidi based on your platform (some auto-detection below)
 # see https://github.com/jcelerier/libremidi/blob/master/docs/header-only.md
@@ -18,8 +20,8 @@ LIBREMIDI_CFLAGS:=-DLIBREMIDI_HEADER_ONLY=1
 LIBREMIDI_LIBS:=
 
 INCLUDE=-I. -Ibuild/seded -Ibuild/patched -I$(MCU) -Ilibremidi/include
-LIBS=$(OTHER_LIBS) $(PORTAUDIO_LIBS) $(LIBREMIDI_LIBS)
-CXXFLAGS=$(TARGET) -O2 -Wall -Wextra -Wno-unused-parameter -std=c++17 -DF_CPU=84000000 $(INCLUDE) $(PORTAUDIO_CFLAGS) $(LIBREMIDI_CFLAGS)
+LIBS=$(OTHER_LIBS) $(PORTAUDIO_LIBS) $(FFTW3_LIBS) $(LIBREMIDI_LIBS)
+CXXFLAGS=$(TARGET) -O2 -Wall -Wextra -Wno-unused-parameter -std=c++17 -DF_CPU=84000000 $(INCLUDE) $(PORTAUDIO_CFLAGS) $(FFTW3_CFLAGS) $(LIBREMIDI_CFLAGS)
 
 OBJS:=$(SOURCES:%.cpp=build/%.o)
 HEADERS:=$(HEADERS:patched/%=build/patched/%)
