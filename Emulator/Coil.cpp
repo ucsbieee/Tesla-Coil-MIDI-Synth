@@ -4,8 +4,9 @@
 #include "Coil.h"
 #include "AudioEngine.h"
 
-Coil::Coil(uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), _millis(0), midi(this), synth(this), voicesUpdating(0) {
+Coil::Coil(uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), _millis(0), midi(this), synth(this), audio(this), voicesUpdating(0) {
 	midi.MIDIbaseChannel = MIDIbaseChannel;
+	audio.audioMode = Audio::AM_PWM;
 	memset(oscillators, 0, sizeof(oscillators));
 	memset(voices, 0, sizeof(voices));
 }

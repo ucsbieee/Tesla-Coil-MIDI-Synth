@@ -1,6 +1,7 @@
 #include "Knob.h"
 #include "LCD.h"
 #include "MIDI.h"
+#include "Audio.h"
 
 #include <Arduino.h>
 
@@ -85,6 +86,11 @@ void enc() {
             if(change < 0) change = 0;
             else if(change > 15) change = 15;
             MIDI::MIDIbaseChannel = change;
+          case LCD::SCREEN_AUDIO_MODE:
+            change += (int32_t)Audio::audioMode;
+            if(change < 0) change = Audio::AM_INVALID-1;
+            else if(change >= Audio::AM_INVALID) change = Audio::AM_OFF;
+            Audio::audioMode = (Audio::AudioMode)change;
           default:
             break;
         }

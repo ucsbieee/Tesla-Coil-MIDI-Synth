@@ -258,8 +258,7 @@ void cc(uint8_t channel, uint8_t control, uint8_t value) {
   switch(control) {
     case 120: // All sound/oscillators off
     case 123:
-      for(unsigned int x=0; x<NVOICES; x++)
-        Voice::voices[x].active = false;
+      Synth::stopSynth();
       break;
     case 121: // Reset stuff to initial values
         tremoloDepth = TREMOLO_DEPTH_DEFAULT;
@@ -411,31 +410,6 @@ void processMIDI() {
       hwMIDIbufInd = 0;
       handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
     }
-  }
-}
-
-void checkConnected() {
-  static uint16_t lastFrameNumber;
-  static int8_t missedFrameCount = -1;
-
-  // Should increment at 1ms USB frame interval
-  const uint16_t frameNumber = (UOTGHS->UOTGHS_DEVFNUM & UOTGHS_DEVFNUM_FNUM_Msk) >> UOTGHS_DEVFNUM_FNUM_Pos;
-
-  if(frameNumber == lastFrameNumber) {
-    // Only count missed frames if we have received some in the past
-    if(missedFrameCount >= 0)
-      missedFrameCount++;
-  }
-
-  else missedFrameCount = 0;
-
-  lastFrameNumber = frameNumber;
-
-  // Disable oscillators if we go more than 10ms without a USB frame
-  if(missedFrameCount >= 10) {
-    missedFrameCount = -1;
-    for(unsigned int x=0; x<NVOICES; x++)
-        Voice::voices[x].active = false;
   }
 }
 

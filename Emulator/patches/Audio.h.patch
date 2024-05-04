@@ -1,0 +1,22 @@
+5c5
+< namespace Audio {
+---
+> class Coil;
+6a7,12
+> class Audio {
+> public:
+> 
+> Audio(Coil *parent);
+> Coil *coil;
+> 
+41d46
+< extern const char *audioModeNames[];
+46,49d50
+< void initAudio();
+< void startAudio();
+< void stopAudio();
+< void processAudio();
+52c53
+< }
+---
+> };

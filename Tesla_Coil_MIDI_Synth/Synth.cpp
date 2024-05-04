@@ -219,6 +219,11 @@ void updateSynth() {
   WDT->WDT_CR = WDT_CR_KEY(0xA5) | WDT_CR_WDRSTT;
 }
 
+void stopSynth() {
+  for(unsigned int x=0; x<NVOICES; x++)
+        Voice::voices[x].active = false;
+}
+
 // Update pulse width of a timer
 inline __attribute__((always_inline)) void updateWidth(uint8_t chan, uint32_t pulseWidth) {
   const Voice::VoiceConfig &vc = Voice::voiceConfigs[chan];

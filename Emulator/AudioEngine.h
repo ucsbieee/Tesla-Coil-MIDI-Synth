@@ -13,7 +13,7 @@
 #define FRAMES_PER_BUFFER 128
 #define CHANNELS 2
 
-#define MAX_FIFO_SIZE (FRAMES_PER_BUFFER*CHANNELS*4)
+#define MAX_FIFO_SIZE (FRAMES_PER_BUFFER*CHANNELS*16)
 
 #define VOLUME 0.8f
 #define STEREO_SEPARATION 0.4f
@@ -27,15 +27,26 @@ class AudioEngine {
 public:
 	AudioEngine(std::list<Coil> &coils);
 
-	// portaudio callback
-	static int genAudio(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
+	// Desired portaudio stream parameters
+	static portaudio::StreamParameters desiredInputParameters(portaudio::Device &d);
+	static portaudio::StreamParameters desiredOutputParameters(portaudio::Device &d);
+
+	// portaudio callbacks
+	static int inputCallback(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
+	static int outputCallback(const void *input, void *output, unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo, PaStreamCallbackFlags statusFlags, void *userData);
 
 protected:
 	std::list<Coil> &coils;
 
+	// Buffers before and after processing
+	RingBuffer<float, MAX_FIFO_SIZE+1> inputBuffer;
+
 	// Unprocessed audio generation state
 	unsigned long sample; // Index of last sample generated
 	unsigned long lastUpdateSample; // Index of last sample when synth was updated
+
+	// Last input samples
+	float inputSamples[CHANNELS];
 
 	// Convolution objects to apply IR filter to each channel
 	std::deque<Convolution> conv;

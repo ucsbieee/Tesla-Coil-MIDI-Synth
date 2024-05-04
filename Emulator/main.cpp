@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <utility>
+#include <memory>
 
 #include <libremidi/libremidi.hpp>
 #include <portaudiocpp/PortAudioCpp.hxx>
@@ -23,15 +24,6 @@ int choose(const char *message, vector<pair<string, int>> choices) {
 		cin >> choice;
 	} while(choice <= 0 || choice > (ssize_t)choices.size());
 	return choices[choice-1].second;
-}
-
-// Generate fixed stream parameters for a given PortAudio device
-portaudio::StreamParameters desiredParameters(portaudio::Device &d) {
-	return {portaudio::DirectionSpecificStreamParameters::null(),
-	        portaudio::DirectionSpecificStreamParameters(d, 2, portaudio::FLOAT32, true, 0, NULL),
-	        F_SAMP,
-	        FRAMES_PER_BUFFER,
-	        0};
 }
 
 int main(int argc, char **argv) {
@@ -63,52 +55,69 @@ int main(int argc, char **argv) {
 		coils.emplace_back(4, Coil::RIGHT);
 	}
 
+	// Create audio engine
+	AudioEngine engine(coils);
+
 	// Init portaudio
 	portaudio::AutoSystem autoSys;
 	portaudio::System &sys = portaudio::System::instance();
 
 	// Select audio output device
-	vector<pair<string, int>> audioDeviceNames;
-	for(portaudio::System::DeviceIterator i = sys.devicesBegin(); i != sys.devicesEnd(); i++)
-		// Make sure this device supports the desired output parameters
-		if(desiredParameters(*i).isSupported())
-			audioDeviceNames.emplace_back(i->name(), i->index());
+	vector<pair<string, int>> deviceNames;
+	auto filterDevices = [&](auto desiredParameters) {
+		for(portaudio::System::DeviceIterator i = sys.devicesBegin(); i != sys.devicesEnd(); i++)
+			// Make sure this device supports the desired parameters
+			if(desiredParameters(*i).isSupported())
+				deviceNames.emplace_back(i->name(), i->index());
+	};
 
-	portaudio::Device &device = sys.deviceByIndex(choose("Choose audio output device", audioDeviceNames));
+	filterDevices(AudioEngine::desiredOutputParameters);
+	portaudio::Device &outputDevice = sys.deviceByIndex(choose("Choose audio output device", deviceNames));
+	portaudio::CFunCallbackStream outputStream(AudioEngine::desiredOutputParameters(outputDevice), &AudioEngine::outputCallback, &engine);
 
-	// Create audio engine
-	AudioEngine engine(coils);
-
-	// portaudio stream
-	portaudio::CFunCallbackStream stream(desiredParameters(device), &AudioEngine::genAudio, &engine);
+	deviceNames.clear();
+	deviceNames.emplace_back("None", -1);
+	filterDevices(AudioEngine::desiredInputParameters);
+	const int inputDeviceInd = choose("Choose audio input device", deviceNames);
+	unique_ptr<portaudio::CFunCallbackStream> inputStream;
+	if(inputDeviceInd >= 0) {
+		portaudio::Device &inputDevice = sys.deviceByIndex(inputDeviceInd);
+		inputStream.reset(new portaudio::CFunCallbackStream(AudioEngine::desiredInputParameters(inputDevice), &AudioEngine::inputCallback, &engine));
+	}
 
 	// Select MIDI input device
 	libremidi::midi_in midi;
-	vector<pair<string, int>> midiDeviceNames;
+	deviceNames.clear();
+	deviceNames.emplace_back("None", -1);
 	for(unsigned int x = 0; x < midi.get_port_count(); x++)
-		midiDeviceNames.emplace_back(midi.get_port_name(x), x);
+		deviceNames.emplace_back(midi.get_port_name(x), x);
 
-	midi.open_port(choose("Choose MIDI input device", midiDeviceNames));
+	const int chosenMidiDevice = choose("Choose MIDI input device", deviceNames);
+	if(chosenMidiDevice >= 0) {
+		midi.open_port(chosenMidiDevice);
 
-	midi.set_callback([&](const libremidi::message& message) {
-		unsigned char pass[3] = {0};
-		switch(message.size()) {
-			case 0:
-				return;
-			default:
-			case 3:
-				pass[2] = message[2];
-			case 2:
-				pass[1] = message[1];
-			case 1:
-				pass[0] = message[0];
-				break;
-		}
-		for(auto &coil:coils)
-			coil.handleMIDI(pass);
-	});
+		midi.set_callback([&](const libremidi::message& message) {
+			unsigned char pass[3] = {0};
+			switch(message.size()) {
+				case 0:
+					return;
+				default:
+				case 3:
+					pass[2] = message[2];
+				case 2:
+					pass[1] = message[1];
+				case 1:
+					pass[0] = message[0];
+					break;
+			}
+			for(auto &coil:coils)
+				coil.handleMIDI(pass);
+		});
+	}
 
-	stream.start();
+	outputStream.start();
+	if(inputStream)
+		inputStream->start();
 
 	// Run forever...
 	while(true) sys.sleep(1e6);

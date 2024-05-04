@@ -23,6 +23,7 @@ extern uint8_t vol;
 
 // Functions
 void initSynth();
+void stopSynth();
 void updateSynth();
 
 }

@@ -2,6 +2,7 @@
 #include "BarChars.h"
 #include "Knob.h"
 #include "MIDI.h"
+#include "Audio.h"
 #include "Version.h"
 
 #include <Arduino.h>
@@ -139,6 +140,14 @@ const LCD_screen_descriptor screens[] = {
     &MIDI::MIDIbaseChannel,
     NULL,
     0
+  },
+  { // SCREEN_AUDIO_MODE
+    "Audio Mode",
+    "",
+    NULL,
+    NULL,
+    NULL,
+    0
   }
 };
 
@@ -264,6 +273,15 @@ void updateLCD() {
       if(LCDstate != lastLCDstate || displayedValue != lastDisplayedValue || editing != lastEditing) {
         char buf[17];
         snprintf(buf, 17, "%c%s%i                ", editing ? '>' : ' ', noteNames[displayedValue%12], displayedValue/12-1);
+        lcd.setCursor(0, 1);
+        lcd.print(buf);
+      }
+      break;
+    case SCREEN_AUDIO_MODE:
+      displayedValue = (uint16_t)Audio::audioMode;
+      if(LCDstate != lastLCDstate || displayedValue != lastDisplayedValue || editing != lastEditing) {
+        char buf[17];
+        snprintf(buf, 17, "%c%s                ", editing ? '>' : ' ', Audio::audioModeNames[displayedValue]);
         lcd.setCursor(0, 1);
         lcd.print(buf);
       }

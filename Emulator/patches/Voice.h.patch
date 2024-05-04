@@ -1,6 +1,6 @@
-5d4
+4d3
 < #include <sam.h>
-46,54d44
+45,53d43
 < typedef struct {
 <   Tc *timer;
 <   TcChannel *channel;
@@ -10,7 +10,7 @@
 <   bool timerab;
 < } VoiceConfig;
 < 
-57,64d46
+56,63d45
 < extern const VoiceConfig voiceConfigs[NVOICES];
 < 
 < extern Voice voices[NVOICES];

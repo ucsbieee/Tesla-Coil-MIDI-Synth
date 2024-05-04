@@ -1,8 +1,8 @@
-6c6
+5c5
 < namespace Synth {
 ---
 > class Coil;
-7a8,13
+6a7,12
 > class Synth {
 > public:
 > 

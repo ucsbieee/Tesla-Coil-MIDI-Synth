@@ -5,8 +5,8 @@ BIN=tcsynth
 MCU=../Tesla_Coil_MIDI_Synth
 
 # Files to compile and patch if necessary
-SOURCES=seded/MIDI.cpp seded/Synth.cpp Drum.cpp Coil.cpp AudioEngine.cpp Convolution.cpp ir.s
-HEADERS=seded/MIDI.h seded/Synth.h patched/Voice.h Coil.h AudioEngine.h Convolution.h RingBuffer.h
+SOURCES=seded/MIDI.cpp seded/Synth.cpp seded/Audio.cpp Drum.cpp Coil.cpp AudioEngine.cpp Convolution.cpp ir.s
+HEADERS=seded/MIDI.h seded/Synth.h patched/Voice.h seded/Audio.h Coil.h AudioEngine.h Convolution.h RingBuffer.h
 
 # Get portaudio flags from pkg-config
 PORTAUDIO_CFLAGS:=$(shell pkg-config --cflags portaudiocpp)

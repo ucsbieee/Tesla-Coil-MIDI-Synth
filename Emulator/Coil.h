@@ -2,6 +2,7 @@
 
 #include "MIDI.h"
 #include "Synth.h"
+#include "Audio.h"
 #include "Voice.h"
 
 // Class representing a single MIDI controller/Tesla coil pair
@@ -44,10 +45,11 @@ private:
 	// millis() time
 	unsigned long _millis;
 
-protected:
+public:
 	// Instances of synth components that would normally be global scope in the real controller
 	MIDI midi;
 	Synth synth;
+	Audio audio;
 	Voice::Voice voices[NVOICES];
 	volatile uint8_t voicesUpdating;
 	
@@ -57,7 +59,4 @@ protected:
 	
 	// Replacement for Arduino millis() function
 	unsigned long millis(void);
-	
-	friend class MIDI;
-	friend class Synth;
 };
