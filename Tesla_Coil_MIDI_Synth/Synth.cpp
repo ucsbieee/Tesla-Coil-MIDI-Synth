@@ -18,13 +18,13 @@ void updatePeriod(uint8_t chan, uint32_t period);
 
 void initSynth() {
   // Precompute exponential decay thing
-  const float scale = exp(-EXP_CRUNCH);
+  const float scale = expf(-EXP_CRUNCH);
   for(int x=0; x<256; x++)
-    eLookup[x] = (exp(-x*EXP_CRUNCH/255.0)-scale)/(1-scale)*255;
+    eLookup[x] = (expf(-x*EXP_CRUNCH/256.0f)-scale)/(1-scale)*255;
 
   // Precompute sine
   for(int x=0; x<256; x++)
-    sinLookup[x] = sin(2*PI*x/256.0)*127;
+    sinLookup[x] = sinf(2*PI*x/256.0f)*127;
 }
 
 void updateSynth() {
@@ -35,7 +35,9 @@ void updateSynth() {
   }
   
   // Update voices
+#ifdef AUTODUCK
   int totalEnv = 0;
+#endif
   for(unsigned int x=0; x<NVOICES; x++) {
     Voice::Voice &voice = Voice::voices[x];
     
@@ -91,19 +93,19 @@ void updateSynth() {
           env = 255-eLookup[(uint64_t)dt*255/localA];
         } else if(voice.adsrStage == 1) {
           if(localD == 0) localD = 1;
-          env = (255-localS)*(uint32_t)eLookup[(uint64_t)dt*255/localD]/255+localS;
+          env = (255-localS)*(uint32_t)eLookup[(uint64_t)dt*255/localD]/256+localS;
         } else if(voice.adsrStage == 2) {
           env = localS;
         } else if(voice.adsrStage == 3) {
           if(localR == 0) localR = 1;
-          env = voice.lastEnv*(uint32_t)eLookup[(uint64_t)dt*255/localR]/255;
+          env = voice.lastEnv*(uint32_t)eLookup[(uint64_t)dt*255/localR]/256;
         }
 
         // Keep track of env right before release so it releases from the right point
         if(voice.adsrStage < 3) voice.lastEnv = env;
 
         // Apply MIDI note velocity
-        env = env*voice.midiVel*2/255;
+        env = env*voice.midiVel*2/256;
       } else {
         if(voice.midiNoteDown) env = voice.midiVel*2;
         else {
@@ -116,7 +118,7 @@ void updateSynth() {
       float note = 100;
       if(voice.midiChannel == MIDI::CHANNEL_DRUM) {
         note = voice.drum->baseNote;
-        note *= env/255.0*voice.drum->envMod+1;
+        note *= env/256.0f*voice.drum->envMod+1;
         note *= ((float)rand()/RAND_MAX*2-1)*voice.drum->noiseMod+1;
       } else if(voice.midiChannel == MIDI::CHANNEL_ARP) {
         // Check if all the notes have been released
@@ -165,8 +167,8 @@ void updateSynth() {
         int8_t tremoloOscillate = sinLookup[((uint64_t)dt*255/MIDI::tremoloPeriod)&0xFF];
         int8_t vibratoOscillate = sinLookup[((uint64_t)dt*255/MIDI::vibratoPeriod)&0xFF];
   
-        env *= (int32_t)MIDI::tremoloDepth*tremoloAmount*tremoloOscillate/8258175.0+1;
-        note *= powf(2, (int32_t)MIDI::vibratoDepth*vibratoAmount*vibratoOscillate/8258175.0);
+        env *= (int32_t)MIDI::tremoloDepth*tremoloAmount*tremoloOscillate/(float)(256*256*128)+1;
+        note *= powf(2, (int32_t)MIDI::vibratoDepth*vibratoAmount*vibratoOscillate/(float)(256*256*128));
       }
 
       voice.period = F_CPU/2/note;
@@ -174,14 +176,16 @@ void updateSynth() {
       // Save env in pulseWidth; will be overwritten later to the correct pulse width
       voice.pulseWidth = env;
 
+#ifdef AUTODUCK
       // Keep track of the total amount of stuff playing
       totalEnv += env;
+#endif
     }
   }
 
   // Compute how much to reduce the pulse width based on how much stuff is currently playing to make it more intelligible
 #ifdef AUTODUCK
-  uint16_t duck = (255*255) / max(totalEnv-255, 255);
+  uint16_t duck = (255*256) / max(totalEnv-256, 256);
 #else
   static const uint16_t duck = 255;
 #endif
@@ -194,12 +198,12 @@ void updateSynth() {
       // Make duty cycle correspond to envelope
       uint16_t env = voice.pulseWidth;
 #ifdef ABSOLUTE_PULSE_WIDTH
-      uint64_t maxWidth = MAX_WIDTH*3/4*vol/255;
+      uint64_t maxWidth = MAX_WIDTH*3/4*vol/256;
 #else
-      uint64_t maxWidth = voice.period*3/4*vol/255; // Limit to 75% duty cycle
+      uint64_t maxWidth = voice.period*3/4*vol/256; // Limit to 75% duty cycle
       if(maxWidth > MAX_WIDTH) maxWidth = MAX_WIDTH;
 #endif
-      voice.pulseWidth = maxWidth*env*duck/65025;
+      voice.pulseWidth = maxWidth*env*duck/(256*256);
 
       if((int32_t)voice.period-(int32_t)voice.pulseWidth < MIN_OFF_TIME) voice.pulseWidth = voice.period - MIN_OFF_TIME;
 
