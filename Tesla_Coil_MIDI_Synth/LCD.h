@@ -60,10 +60,10 @@ typedef struct {
   
 } LCD_screen_descriptor;
 
-extern const LCD_screen_descriptor screens[];
+extern const LCD_screen_descriptor screens[SCREEN_END];
 
 // Note name sequence
-extern const char *noteNames[];
+extern const char *noteNames[12];
 
 // Functions
 void initLCD();

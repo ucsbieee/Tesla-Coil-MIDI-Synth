@@ -3,6 +3,9 @@
 #include "MIDI.h"
 #include "Synth.h"
 #include "Audio.h"
+#include "Knob.h"
+#include "LCD.h"
+#include "LiquidCrystal.h"
 #include "Voice.h"
 
 // Class representing a single MIDI controller/Tesla coil pair
@@ -14,7 +17,7 @@ public:
 		RIGHT = 0b10
 	};
 
-	Coil(uint8_t MIDIbaseChannel = 0, AudioOutputMode aoMode = BOTH);
+	Coil(const char *name, uint8_t MIDIbaseChannel = 0, AudioOutputMode aoMode = BOTH);
 	
 	// Call once for each subsequent sample
 	bool getNextSample();
@@ -50,6 +53,9 @@ public:
 	MIDI midi;
 	Synth synth;
 	Audio audio;
+	Knob knob;
+	LiquidCrystal lcd;
+	LCD lcdObj;
 	Voice::Voice voices[NVOICES];
 	volatile uint8_t voicesUpdating;
 	

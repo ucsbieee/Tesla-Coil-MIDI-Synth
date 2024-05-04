@@ -8,6 +8,7 @@ Prerequisites
  * [`portaudiocpp`](https://github.com/PortAudio/portaudio)
  * [`fftw`](https://www.fftw.org)
  * [`libremidi`](https://github.com/jcelerier/libremidi)
+ * [`SDL2`](https://www.libsdl.org) (and `SDL2_ttf`)
  * GNU `make`
  * `patch`
  * `sed`
@@ -23,6 +24,12 @@ When the program is run, it will ask you for audio input and output devices and 
 
 If run with the `--stereo` flag, the program will emulate two Tesla coil controllers, one panned to the left and the other to the right. The right one responds to MIDI channels starting at 5 instead of 1.
 
+Use the arrow keys and return/space or mouse wheel and click to navigate the settings.
+
 ## Modifying
 
 Significant modifications to the MCU firmware may require the patches to be re-done. Changes to files can be propagated back to the .patch files by running `make patches` after modifying the files produced by running `make build/patched/x.cpp`.
+
+## Attribution
+
+LCD font from [here](https://fontstruct.com/fontstructions/show/476121/lcd_dot_matrix_hd44780u).

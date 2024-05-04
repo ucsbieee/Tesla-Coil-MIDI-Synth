@@ -10,6 +10,7 @@
 
 #include "Coil.h"
 #include "AudioEngine.h"
+#include "LiquidCrystal.h"
 #include "Version.h"
 
 using namespace std;
@@ -46,13 +47,16 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	// Initialize SDL
+	LiquidCrystal::initialize();
 
+	// Create Coil instances
 	list<Coil> coils;
 	if(ncoils == 1)
-		coils.emplace_back(0, Coil::BOTH);
+		coils.emplace_back("Tesla Coil Controller", 0, Coil::BOTH);
 	else if(ncoils == 2) {
-		coils.emplace_back(0, Coil::LEFT);
-		coils.emplace_back(4, Coil::RIGHT);
+		coils.emplace_back("Tesla Coil Controller (Left)", 0, Coil::LEFT);
+		coils.emplace_back("Tesla Coil Controller (Right)", 4, Coil::RIGHT);
 	}
 
 	// Create audio engine
@@ -119,8 +123,20 @@ int main(int argc, char **argv) {
 	if(inputStream)
 		inputStream->start();
 
-	// Run forever...
-	while(true) sys.sleep(1e6);
+	// Run until user quits
+	while(LiquidCrystal::pollSDL())
+		for(auto &coil:coils) {
+			coil.lcdObj.updateLCD();
+			coil.knob.updateKnob();
+		}
+
+	outputStream.stop();
+	if(inputStream)
+		inputStream->stop();
+
+	coils.clear();
+
+	LiquidCrystal::destroy();
 
 	return 0;
 }

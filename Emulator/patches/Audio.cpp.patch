@@ -2,24 +2,28 @@
 < #include "USBAudio.h"
 ---
 > #include "Coil.h"
-5c5
+5,12c5
 < #include <Arduino.h>
----
-> Audio::Audio(Coil *parent): coil(parent) {
-7,8d6
+< 
 < namespace Audio {
 < 
-12,37d9
-< const char *audioModeNames[] = {
-<   "Off",
-<   "Binary",
-<   "Processed",
-<   "PWM"
-< };
+< // Audio processing mode
+< AudioMode audioMode = AM_OFF;
 < 
+< const char *audioModeNames[] = {
+---
+> Audio::Audio(Coil *parent): coil(parent), audioModeNames{
+17c10
+< };
+---
+> } {
+19,20c12,13
 < // Sample period
 < uint32_t period = (F_CPU/NOM_SAMPLE_RATE) << PERIOD_ADJ_SPEED;
-< 
+---
+> // Audio processing mode
+> AudioMode audioMode = AM_OFF;
+22,37d14
 < // Ring buffer of buffers
 < volatile Buffer bufs[NBUFS];
 < uint8_t readBuffer, writeBuffer;
@@ -36,22 +40,22 @@
 < // Last time we got new audio data
 < unsigned long lastAudioTimestamp;
 < 
-39c11
+39c16
 < int32_t lastSample;
 ---
 > int32_t lastSample = 0;
-42c14
+42c19
 < int32_t baseline;
 ---
 > int32_t baseline = 0;
-44,49d15
+44,49d20
 < // Return amount of filled buffers in ring buffer of buffers
 < uint8_t bufsFilled() {
 <   uint8_t diff = writeBuffer - readBuffer;
 <   if(diff > NBUFS)
 <     diff += NBUFS;
 <   return diff;
-52,198d17
+52,198d22
 < void setDMABuffer() {
 <   // Check amount of buffers available
 <   uint8_t filled = bufsFilled();
@@ -199,6 +203,6 @@
 <   }
 < }
 < 
-237,238d55
+237,238d60
 < 
 < }

@@ -49,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y portaudio19-dev libasound2-dev libfftw3-dev
+          sudo apt install -y portaudio19-dev libasound2-dev libfftw3-dev libsdl2-dev libsdl2-ttf-dev
       - name: Build
         run: make -C Emulator -j`nproc` RELEASE_BUILD=1
       - name: Upload
@@ -70,20 +70,21 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install portaudio fftw coreutils
+          brew install portaudio fftw sdl2 sdl2_ttf coreutils
 
           mkdir -p Emulator/static/x64 Emulator/static/arm64
 
-          for lib in portaudio fftw; do
-            curl -sL https://formulae.brew.sh/api/formula/$lib.json -o $lib.json
-            ARM_VERSION=$(jq -r '.bottle.stable.files | to_entries[] | .key' $lib.json | grep -i '^arm64_' | fgrep -ivm1 linux)
-            X64_VERSION=$(jq -r '.bottle.stable.files | to_entries[] | .key' $lib.json | grep -Eivm1 '^arm64_|linux')
+          for lib in portaudio fftw SDL2 SDL2_ttf; do
+            lib_lower=$(echo $lib | tr '[:upper:]' '[:lower:]')
+            curl -sL https://formulae.brew.sh/api/formula/$lib_lower.json -o $lib_lower.json
+            ARM_VERSION=$(jq -r '.bottle.stable.files | to_entries[] | .key' $lib_lower.json | grep -i '^arm64_' | fgrep -ivm1 linux)
+            X64_VERSION=$(jq -r '.bottle.stable.files | to_entries[] | .key' $lib_lower.json | grep -Eivm1 '^arm64_|linux')
 
             echo Using $ARM_VERSION for arm64 $lib
             echo Using $X64_VERSION for x64 $lib
 
-            jq -r ".bottle.stable.files.$ARM_VERSION.url" $lib.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/arm64 --strip-components=3 '*/lib'$lib'*.a'
-            jq -r ".bottle.stable.files.$X64_VERSION.url" $lib.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/x64 --strip-components=3 '*/lib'$lib'*.a'
+            jq -r ".bottle.stable.files.$ARM_VERSION.url" $lib_lower.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/arm64 --strip-components=3 '*/lib'$lib'*.a'
+            jq -r ".bottle.stable.files.$X64_VERSION.url" $lib_lower.json | xargs curl -sLH "Authorization: Bearer QQ==" | tar xf - -C Emulator/static/x64 --strip-components=3 '*/lib'$lib'*.a'
           done
 
           ls -lR Emulator/static
@@ -116,6 +117,8 @@ jobs:
             coreutils
             mingw-w64-x86_64-portaudio
             mingw-w64-x86_64-fftw
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_ttf
             mingw-w64-x86_64-toolchain
       - uses: actions/checkout@v4
         with:

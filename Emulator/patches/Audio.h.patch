@@ -9,14 +9,12 @@
 > Audio(Coil *parent);
 > Coil *coil;
 > 
-41d46
-< extern const char *audioModeNames[];
-46,49d50
+46,49d51
 < void initAudio();
 < void startAudio();
 < void stopAudio();
 < void processAudio();
-52c53
+52c54
 < }
 ---
 > };

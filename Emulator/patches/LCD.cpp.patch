@@ -1,0 +1,74 @@
+8d7
+< #include <Arduino.h>
+11,13c10
+< #ifdef SAVE_BASE_MIDI
+< #include <DueFlashStorage.h>
+< #endif
+---
+> #include "Coil.h"
+15c12
+< namespace LCD {
+---
+> LCD::LCD(Coil *parent): coil(parent),
+17,23c14
+< LiquidCrystal lcd(19, 18, 17, 16, 23, 24);
+< 
+< #ifdef SAVE_BASE_MIDI
+< DueFlashStorage DFS;
+< #endif
+< 
+< const LCD_screen_descriptor screens[] = {
+---
+> screens{
+152c143
+< };
+---
+> },
+155c146
+< const char *noteNames[] = {
+---
+> noteNames{
+168,178c159,161
+< };
+< 
+< unsigned long LCDframe = 0;
+< unsigned long lastLCDframe = 0;
+< unsigned long lastMIDIping = -MIDI_PING_LINGER;
+< int8_t MIDIpingChan = -2, lastMIDIpingChan = MIDIpingChan;
+< 
+< uint8_t LCDstate = SCREEN_PULSE_WIDTH, lastLCDstate = 0xFF;
+< uint16_t displayedValue = Synth::vol, lastDisplayedValue = 0xFFFF;
+< bool editing = false, lastEditing = true;
+< uint8_t volumeBar[16], lastVolumeBar[16];
+---
+> } {
+>   initLCD();
+> }
+180,183d162
+< unsigned long framesSinceLastInput = 0;
+< 
+< bool showingSplashScreen = true;
+< 
+196,203d174
+< #ifdef SAVE_BASE_MIDI
+<   MIDI::MIDIbaseChannel = DFS.read(0); // Store base channel in flash (may cause issues if program space over 50% full?)
+<   if(MIDI::MIDIbaseChannel > 15) {
+<     MIDI::MIDIbaseChannel = 0;
+<     DFS.write(0, 0);
+<   }
+< #endif
+< 
+212a184,185
+> 
+>   lcd.present();
+289,292d261
+< #ifdef SAVE_BASE_MIDI
+<     case SCREEN_MIDI_BASE:
+<       if(!editing && lastEditing) DFS.write(0, MIDI::MIDIbaseChannel);
+< #endif
+336a306,307
+> 
+>   lcd.present();
+361a333,334
+> uint16_t analogRead(int channel) {
+>   return averageVolume * 1024;

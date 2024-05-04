@@ -38,7 +38,7 @@ enum AudioMode {
 };
 
 extern AudioMode audioMode;
-extern const char *audioModeNames[];
+extern const char *audioModeNames[AM_INVALID];
 
 extern int32_t lastSample;
 extern int32_t baseline;

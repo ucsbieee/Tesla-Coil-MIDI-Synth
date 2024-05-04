@@ -1,0 +1,24 @@
+5c5
+< namespace Knob {
+---
+> class Coil;
+6a7,16
+> class Knob {
+> public:
+> 
+> Knob(Coil *parent);
+> Coil *coil;
+> 
+> int8_t movement = 0;
+> int32_t recentMovement = 0;
+> unsigned long lastDecrement = 0;
+> 
+10c20,21
+< void initEncoder();
+---
+> void enc();
+> void updateEncoder();
+13c24
+< }
+---
+> };

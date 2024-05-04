@@ -1,0 +1,56 @@
+6d5
+< #include <Arduino.h>
+9c8
+< namespace LCD {
+---
+> class Coil;
+10a10,15
+> class LCD {
+> public:
+> 
+> LCD(Coil *parent);
+> Coil *coil;
+> 
+35,36c40,43
+< extern uint8_t LCDstate;
+< extern bool editing;
+---
+> unsigned long LCDframe = 0;
+> unsigned long lastLCDframe = 0;
+> unsigned long lastMIDIping = -MIDI_PING_LINGER;
+> int8_t MIDIpingChan = -2, lastMIDIpingChan = MIDIpingChan;
+37a45,53
+> uint8_t LCDstate = SCREEN_PULSE_WIDTH, lastLCDstate = 0xFF;
+> uint16_t displayedValue = 0, lastDisplayedValue = 0xFFFF;
+> bool editing = false, lastEditing = true;
+> uint8_t volumeBar[16], lastVolumeBar[16];
+> 
+> unsigned long framesSinceLastInput = 0;
+> 
+> bool showingSplashScreen = true;
+> 
+39,42c55,58
+< uint16_t displayTypeUINT32(void *data);
+< uint16_t displayTypeUINT8scaled(void *data);
+< uint16_t displayTypeMIDIchannel(void *data);
+< uint16_t displayTypeUINT32Hz(void *data);
+---
+> static uint16_t displayTypeUINT32(void *data);
+> static uint16_t displayTypeUINT8scaled(void *data);
+> static uint16_t displayTypeMIDIchannel(void *data);
+> static uint16_t displayTypeUINT32Hz(void *data);
+63c79
+< extern const LCD_screen_descriptor screens[SCREEN_END];
+---
+> const LCD_screen_descriptor screens[SCREEN_END];
+66c82
+< extern const char *noteNames[12];
+---
+> const char *noteNames[12];
+73c89,92
+< }
+---
+> uint16_t analogRead(int channel);
+> float averageVolume = 0;
+> 
+> };

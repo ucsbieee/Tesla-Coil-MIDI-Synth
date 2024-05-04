@@ -1,0 +1,70 @@
+6c6
+< #include <Arduino.h>
+---
+> #include "Coil.h"
+8c8
+< namespace Knob {
+---
+> Knob::Knob(Coil *parent): coil(parent) {
+10,13d9
+< // Button
+< unsigned long lastButton = 0;
+< bool lastButtonState = true;
+< 
+19,29d14
+< // Encoder LUT (stolen from https://electronics.stackexchange.com/questions/360637/quadrature-encoder-most-efficient-software-implementation)
+< const int8_t encLut[32] = {0,-1,+1,+2,+1,0,+2,-1,-1,+2,0,+1,+2,+1,-1,0,0,-1,+1,-2,+1,0,-2,-1,-1,-2,0,+1,-2,+1,-1,0};
+< uint8_t encDir = 0, encLutInd = 0;
+< 
+< void pollButton() {
+<   unsigned long ms = millis();
+<   bool buttonState = digitalRead(22);
+<   if(!buttonState) {
+<     if(lastButtonState && ms - lastButton >= BUTTON_DEBOUNCE) LCD::editing = !LCD::editing;
+<     lastButton = ms;
+<   }
+43,47d27
+<   encLutInd |= (!digitalRead(64))<<1 | !digitalRead(65); // Add current state to index
+<   movement += encLut[encLutInd]; // Increment position
+<   if(encLut[encLutInd]) encDir = (encLut[encLutInd] > 0) ? 1:0; // Update instantaneous direction
+<   encLutInd = ((encLutInd<<2)&0b1100) | (encDir<<4); // Shift bits and stuff for next iteration
+<   
+56,57c36,37
+<     if(LCD::editing) { // Change value
+<       const LCD::LCD_screen_descriptor &screen = LCD::screens[LCD::LCDstate];
+---
+>     if(coil->lcdObj.editing) { // Change value
+>       const LCD::LCD_screen_descriptor &screen = coil->lcdObj.screens[coil->lcdObj.LCDstate];
+65c45
+<         switch(LCD::LCDstate) {
+---
+>         switch(coil->lcdObj.LCDstate) {
+90c70
+<             change += (int32_t)Audio::audioMode;
+---
+>             change += (int32_t)coil->audio.audioMode;
+93c73
+<             Audio::audioMode = (Audio::AudioMode)change;
+---
+>             coil->audio.audioMode = (Audio::AudioMode)change;
+99c79
+<       change += (int32_t)LCD::LCDstate;
+---
+>       change += (int32_t)coil->lcdObj.LCDstate;
+102c82
+<       LCD::LCDstate = change;
+---
+>       coil->lcdObj.LCDstate = change;
+111d90
+<   pollButton();
+113,122d91
+< 
+< void initEncoder() {
+<   pinMode(22, INPUT_PULLUP);
+<   pinMode(64, INPUT_PULLUP);
+<   pinMode(65, INPUT_PULLUP);
+<   attachInterrupt(64, enc, CHANGE);
+<   attachInterrupt(65, enc, CHANGE);
+< }
+< 
+< }
