@@ -6,7 +6,6 @@
 Convolution::Convolution(const float *ir, size_t irLen, size_t bufLen): ir(ir), irLen(irLen), bufLen(bufLen), scale(1.0f/sqrtf(irLen)) {
 	inputBuffer = (float*)fftwf_malloc(irLen * sizeof(float));
 	memset(inputBuffer, 0, irLen * sizeof(float));
-	inputBufferInd = 0;
 
 	intermediate = (fftwf_complex*)fftwf_malloc((irLen/2+1) * sizeof(fftwf_complex));
 
@@ -33,16 +32,14 @@ Convolution::~Convolution() {
 	fftwf_destroy_plan(reversePlan);
 }
 
-void Convolution::feedSample(float sample) {
-	if(inputBufferInd >= bufLen)
-		return;
-
-	// Pre-scale input to keep energy normalized
-	inputBuffer[inputBufferInd++] = sample * scale;
+float *Convolution::getInput() const {
+	return inputBuffer;
 }
 
 const float *Convolution::getOutput() {
-	inputBufferInd = 0;
+	// Scale input data
+	for(size_t i = 0; i < bufLen; i++)
+		inputBuffer[i] *= scale;
 
 	// Compute FFT of incoming data
 	fftwf_execute(forwardPlan);

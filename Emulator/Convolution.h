@@ -10,10 +10,10 @@ public:
 	Convolution(const float *ir, size_t irLen, size_t bufLen);
 	~Convolution();
 
-	// Feed an input sample; must call bufferLen times between each call to getOutput
-	void feedSample(float sample);
+	// Return input buffer
+	float *getInput() const;
 
-	// Get output buffer
+	// Return output buffer
 	const float *getOutput();
 
 protected:
@@ -22,9 +22,8 @@ protected:
 
 	const float scale;
 
-	// Contiguous input data
+	// Contiguous and aligned input data
 	float *inputBuffer;
-	size_t inputBufferInd;
 
 	// Intermediate FFT results for convolving
 	fftwf_complex *intermediate;

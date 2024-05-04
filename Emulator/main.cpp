@@ -108,7 +108,6 @@ int main(int argc, char **argv) {
 			coil.handleMIDI(pass);
 	});
 
-	engine.startStream();
 	stream.start();
 
 	// Run forever...
