@@ -38,6 +38,11 @@ void loop() {
   Knob::updateKnob();
 }
 
+// Must be in main file to override default handler
+void PWM_Handler() {
+  Audio::setDMABuffer();
+}
+
 extern "C" {
 int sysTickHook() { // Runs at 1kHz
   Connected::checkConnected();

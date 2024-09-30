@@ -49,4 +49,7 @@ void stopAudio();
 void processAudio();
 uint16_t processSample(int32_t in);
 
+// Called by ISR in main file
+void setDMABuffer();
+
 }

@@ -49,6 +49,7 @@ uint8_t bufsFilled() {
   return diff;
 }
 
+// Called from ISR when one buffer has been played
 void setDMABuffer() {
   // Check amount of buffers available
   uint8_t filled = bufsFilled();
@@ -78,11 +79,6 @@ void setDMABuffer() {
     period = min(period+1, (F_CPU/MIN_SAMPLE_RATE) << PERIOD_ADJ_SPEED);
 
   PWM->PWM_CH_NUM[0].PWM_CPRDUPD = period >> PERIOD_ADJ_SPEED;
-}
-
-// ISR called when one buffer has been played
-void PWM_Handler() {
-  setDMABuffer();
 }
 
 void initAudio() {
