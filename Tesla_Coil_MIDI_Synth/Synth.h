@@ -2,8 +2,6 @@
 
 #include <inttypes.h>
 
-namespace Synth {
-
 // Uncomment to automatically reduce pulse width when many voices are playing at once
 //#define AUTODUCK
 
@@ -18,12 +16,28 @@ namespace Synth {
 #define VEL_THRESH 1 // minimum velocity
 #define MAX_FREQ 4000 // if frequency is too high, pulses just merge together
 
-#define DEFAULT_VOL 64
-extern uint8_t vol;
+#define LUTSIZE 256
 
-// Functions
-void initSynth();
-void stopSynth();
-void updateSynth();
+class Voices;
+class MIDI;
 
-}
+class Synth {
+public:
+  Synth(Voices &voices, MIDI &midi);
+  
+  uint8_t vol = 64;
+  
+  // Functions
+  void stop();
+  void update();
+  
+private:
+  Voices &voices;
+  MIDI &midi;
+  
+  static uint8_t eLookup[LUTSIZE];
+  static int8_t sinLookup[LUTSIZE];
+  
+  void updateWidth(uint8_t chan, uint32_t pulseWidth);
+  void updatePeriod(uint8_t chan, uint32_t period);
+};

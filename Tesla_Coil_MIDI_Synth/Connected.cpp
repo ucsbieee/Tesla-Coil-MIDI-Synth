@@ -4,12 +4,12 @@
 
 #include <Arduino.h>
 
-namespace Connected {
+uint16_t Connected::lastFrameNumber;
+int8_t Connected::missedFrameCount = -1;
 
-uint16_t lastFrameNumber;
-int8_t missedFrameCount = -1;
+Connected::Connected(Synth &synth, Audio &audio): synth(synth), audio(audio) {}
 
-void checkConnected() {
+void Connected::checkConnected() {
   // Should increment at 1ms USB frame interval
   const uint16_t frameNumber = (UOTGHS->UOTGHS_DEVFNUM & UOTGHS_DEVFNUM_FNUM_Msk) >> UOTGHS_DEVFNUM_FNUM_Pos;
 
@@ -26,9 +26,7 @@ void checkConnected() {
   // Disable output if we go more than 10ms without a USB frame
   if(missedFrameCount >= 10) {
     missedFrameCount = -1;
-    Synth::stopSynth();
-    Audio::stopAudio();
+    synth.stop();
+    audio.stop();
   }
-}
-
 }

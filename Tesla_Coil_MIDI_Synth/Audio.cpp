@@ -4,45 +4,17 @@
 
 #include <Arduino.h>
 
-namespace Audio {
-
-// Audio processing mode
-AudioMode audioMode = AM_OFF;
-
-const char *audioModeNames[] = {
+const char *Audio::audioModeNames[] = {
   "Off",
   "Binary",
   "Processed",
   "PWM"
 };
 
-// Sample period
-uint32_t period = (F_CPU/NOM_SAMPLE_RATE) << PERIOD_ADJ_SPEED;
-
-// Ring buffer of buffers
-volatile Buffer bufs[NBUFS];
-uint8_t readBuffer, writeBuffer;
-
-// Empty buffer to insert when no data available
-uint16_t zeroBuf[ZERO_BUF_SIZE];
-
-// Flag to drop incoming buffers if we're really behind on playing
-bool purgeBufs;
-
-// DMA and stuff currently enabled
-bool audioRunning;
-
-// Last time we got new audio data
-unsigned long lastAudioTimestamp;
-
-// Last processed sample (used for AM_PROCESSED mode)
-int32_t lastSample;
-
-// Baseline (used for AM_PWM mode)
-int32_t baseline;
+Audio::Audio(Synth &synth): synth(synth) {}
 
 // Return amount of filled buffers in ring buffer of buffers
-uint8_t bufsFilled() {
+uint8_t Audio::bufsFilled() {
   uint8_t diff = writeBuffer - readBuffer;
   if(diff > NBUFS)
     diff += NBUFS;
@@ -50,7 +22,7 @@ uint8_t bufsFilled() {
 }
 
 // Called from ISR when one buffer has been played
-void setDMABuffer() {
+void Audio::setDMABuffer() {
   // Check amount of buffers available
   uint8_t filled = bufsFilled();
 
@@ -81,7 +53,7 @@ void setDMABuffer() {
   PWM->PWM_CH_NUM[0].PWM_CPRDUPD = period >> PERIOD_ADJ_SPEED;
 }
 
-void initAudio() {
+void Audio::init() {
   // Enable clock to PWM
   PMC->PMC_PCER1 = (1 << (ID_PWM-32));
 
@@ -98,7 +70,7 @@ void initAudio() {
   PIO->PIO_OER = PIN; // Fall back to low output when PWM not selected
   PIO->PIO_CODR = PIN;
 
-  stopAudio();
+  stop();
 
   // Enable data transmission using PWM PDC
   PDC_PWM->PERIPH_PTCR = PERIPH_PTCR_TXTEN;
@@ -107,7 +79,7 @@ void initAudio() {
   NVIC->ISER[1] = (1 << (PWM_IRQn-32));
 }
 
-void startAudio() {
+void Audio::start() {
   // Disable PIO control, switch to peripheral function
   PIO->PIO_PDR = PIN;
 
@@ -129,7 +101,7 @@ void startAudio() {
   audioRunning = true;
 }
 
-void stopAudio() {
+void Audio::stop() {
   // Enable PIO control, setting output low
   PIO->PIO_PER = PIN;
 
@@ -147,14 +119,14 @@ void stopAudio() {
   audioRunning = false;
 }
 
-void processAudio() {
+void Audio::process() {
   // Wait for data to be available
   if(USBAudio.available()) {
     lastAudioTimestamp = millis();
 
     // Make sure DMA is running
     if(!audioRunning)
-      startAudio();
+      start();
 
     // Temporary place for unprocessed USB audio samples
     static int16_t rxBuf[BUF_SIZE];
@@ -188,11 +160,11 @@ void processAudio() {
   // If audio hasn't been running for a while, stop
   else {
     if(audioRunning && millis() - lastAudioTimestamp > AUDIO_TIMEOUT)
-      stopAudio();
+      stop();
   }
 }
 
-uint16_t processSample(int32_t in) {
+uint16_t Audio::processSample(int32_t in) {
   uint16_t ret;
 
   switch(audioMode) {
@@ -219,7 +191,7 @@ uint16_t processSample(int32_t in) {
       baseline = baseline*253/256;
 
       // Apply volume and make proportional to max PWM counter value
-      ret = in * Synth::vol / 0x100 * (F_CPU/NOM_SAMPLE_RATE) / 0x10000;
+      ret = in * synth.vol / 0x100 * (F_CPU/NOM_SAMPLE_RATE) / 0x10000;
       break;
 
     default:
@@ -229,6 +201,4 @@ uint16_t processSample(int32_t in) {
 
   lastSample = in;
   return ret;
-}
-
 }

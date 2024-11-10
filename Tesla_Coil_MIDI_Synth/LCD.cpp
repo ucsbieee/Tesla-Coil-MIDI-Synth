@@ -1,26 +1,27 @@
 #include "LCD.h"
 #include "BarChars.h"
-#include "Knob.h"
+#include "Synth.h"
 #include "MIDI.h"
 #include "Audio.h"
 #include "Version.h"
 
-#include <Arduino.h>
-#include <LiquidCrystal.h>
+// Note name sequence
+const char *LCD::noteNames[] = {
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+};
 
-#ifdef SAVE_BASE_MIDI
-#include <DueFlashStorage.h>
-#endif
-
-namespace LCD {
-
-LiquidCrystal lcd(19, 18, 17, 16, 23, 24);
-
-#ifdef SAVE_BASE_MIDI
-DueFlashStorage DFS;
-#endif
-
-const LCD_screen_descriptor screens[] = {
+LCD::LCD(Synth &synth, MIDI &midi, Audio &audio): screens{
   { // SCREEN_PULSE_WIDTH
     "P Width: ",
     "%",
@@ -33,88 +34,88 @@ const LCD_screen_descriptor screens[] = {
     "Attack",
     "ms",
     &displayTypeUINT32,
-    (void*)&MIDI::attack,
-    &MIDI::attackCC,
+    (void*)&midi.attack,
+    &midi.attackCC,
     ATTACK_CC
   },
   { // SCREEN_D
     "Decay",
     "ms",
     &displayTypeUINT32,
-    (void*)&MIDI::decay,
-    &MIDI::decayCC,
+    (void*)&midi.decay,
+    &midi.decayCC,
     DECAY_CC
   },
   { // SCREEN_S
     "Sustain",
     "%",
     &displayTypeUINT8scaled,
-    (void*)&MIDI::sustain,
-    &MIDI::sustainCC,
+    (void*)&midi.sustain,
+    &midi.sustainCC,
     SUSTAIN_CC
   },
   { // SCREEN_R
     "Release",
     "ms",
     &displayTypeUINT32,
-    (void*)&MIDI::release,
-    &MIDI::releaseCC,
+    (void*)&midi.release,
+    &midi.releaseCC,
     RELEASE_CC
   },
   { // SCREEN_TREM_DEPTH
     "Trem Depth",
     "%",
     &displayTypeUINT8scaled,
-    (void*)&MIDI::tremoloDepth,
-    &MIDI::tremoloDepthCC,
+    (void*)&midi.tremoloDepth,
+    &midi.tremoloDepthCC,
     TREMOLO_DEPTH_CC
   },
   { // SCREEN_TREM_PERIOD
     "Trem Speed",
     "Hz",
     &displayTypeUINT32Hz,
-    (void*)&MIDI::tremoloPeriod,
-    &MIDI::tremoloPeriodCC,
+    (void*)&midi.tremoloPeriod,
+    &midi.tremoloPeriodCC,
     TREMOLO_PERIOD_CC
   },
   { // SCREEN_TREM_DELAY
     "Trem Delay",
     "ms",
     &displayTypeUINT32,
-    (void*)&MIDI::tremoloDelay,
-    &MIDI::tremoloDelayCC,
+    (void*)&midi.tremoloDelay,
+    &midi.tremoloDelayCC,
     TREMOLO_DELAY_CC
   },
   { // SCREEN_VIBR_DEPTH
     "Vibr Depth",
     "%",
     &displayTypeUINT8scaled,
-    (void*)&MIDI::vibratoDepth,
-    &MIDI::vibratoDepthCC,
+    (void*)&midi.vibratoDepth,
+    &midi.vibratoDepthCC,
     VIBRATO_DEPTH_CC
   },
   { // SCREEN_VIBR_PERIOD
     "Vibr Speed",
     "Hz",
     &displayTypeUINT32Hz,
-    (void*)&MIDI::vibratoPeriod,
-    &MIDI::vibratoPeriodCC,
+    (void*)&midi.vibratoPeriod,
+    &midi.vibratoPeriodCC,
     VIBRATO_PERIOD_CC
   },
   { // SCREEN_VIBR_DELAY
     "Vibr Delay",
     "ms",
     &displayTypeUINT32,
-    (void*)&MIDI::vibratoDelay,
-    &MIDI::vibratoDelayCC,
+    (void*)&midi.vibratoDelay,
+    &midi.vibratoDelayCC,
     VIBRATO_DELAY_CC
   },
   { // SCREEN_ARP_PERIOD
     "Arp Speed",
     "Hz",
     &displayTypeUINT32Hz,
-    (void*)&MIDI::arpeggioPeriod,
-    &MIDI::arpeggioPeriodCC,
+    (void*)&midi.arpeggioPeriod,
+    &midi.arpeggioPeriodCC,
     ARPEGGIO_CC
   },
   { // SCREEN_MIDI_MIN_NOTE
@@ -137,7 +138,7 @@ const LCD_screen_descriptor screens[] = {
     "MIDI Base CH",
     "",
     &displayTypeMIDIchannel,
-    &MIDI::MIDIbaseChannel,
+    &midi.MIDIbaseChannel,
     NULL,
     0
   },
@@ -149,39 +150,9 @@ const LCD_screen_descriptor screens[] = {
     NULL,
     0
   }
-};
+}, synth(synth), midi(midi), audio(audio), lcd(19, 18, 17, 16, 23, 24), displayedValue(synth.vol) {}
 
-// Note name sequence
-const char *noteNames[] = {
-  "C",
-  "C#",
-  "D",
-  "D#",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "G#",
-  "A",
-  "A#",
-  "B",
-};
-
-unsigned long LCDframe = 0;
-unsigned long lastLCDframe = 0;
-unsigned long lastMIDIping = -MIDI_PING_LINGER;
-int8_t MIDIpingChan = -2, lastMIDIpingChan = MIDIpingChan;
-
-uint8_t LCDstate = SCREEN_PULSE_WIDTH, lastLCDstate = 0xFF;
-uint16_t displayedValue = Synth::vol, lastDisplayedValue = 0xFFFF;
-bool editing = false, lastEditing = true;
-uint8_t volumeBar[16], lastVolumeBar[16];
-
-unsigned long framesSinceLastInput = 0;
-
-bool showingSplashScreen = true;
-
-void initLCD() {
+void LCD::init() {
   lcd.begin(16, 2);
 
   for(uint8_t x=0; x<NBARCHARS; x++) {
@@ -194,9 +165,9 @@ void initLCD() {
   memset(lastVolumeBar, BAR_EMPTY, 16);
 
 #ifdef SAVE_BASE_MIDI
-  MIDI::MIDIbaseChannel = DFS.read(0); // Store base channel in flash (may cause issues if program space over 50% full?)
-  if(MIDI::MIDIbaseChannel > 15) {
-    MIDI::MIDIbaseChannel = 0;
+  midi.MIDIbaseChannel = DFS.read(0); // Store base channel in flash (may cause issues if program space over 50% full?)
+  if(midi.MIDIbaseChannel > 15) {
+    midi.MIDIbaseChannel = 0;
     DFS.write(0, 0);
   }
 #endif
@@ -212,7 +183,7 @@ void initLCD() {
   lcd.print(__DATE__);
 }
 
-void updateLCD() {
+void LCD::update() {
   unsigned long ms = millis();
   if(ms-lastLCDframe < LCD_UPDATE_PERIOD) return;
   lastLCDframe = ms;
@@ -224,7 +195,7 @@ void updateLCD() {
     } else return;
   }
 
-  const LCD_screen_descriptor &screen = screens[LCDstate];
+  const auto &screen = screens[LCDstate];
 
   // Print title
   if(LCDstate != lastLCDstate) {
@@ -237,7 +208,7 @@ void updateLCD() {
   switch(LCDstate) {
     case SCREEN_PULSE_WIDTH: {
         // Print pulse width value
-        displayedValue = displayTypeUINT8scaled((void*)&Synth::vol);
+        displayedValue = displayTypeUINT8scaled((void*)&synth.vol);
         if(LCDstate != lastLCDstate || displayedValue != lastDisplayedValue || editing != lastEditing) {
           char buf[17];
           snprintf(buf, 17, "%s%i%s                ", editing ? ">" : "", displayedValue, screen.units);
@@ -265,10 +236,10 @@ void updateLCD() {
       }
       break;
     case SCREEN_MIDI_MIN_NOTE:
-      displayedValue = MIDI::minNote;
+      displayedValue = midi.minNote;
       goto SCREEN_MIDI_NOTE;
     case SCREEN_MIDI_MAX_NOTE:
-      displayedValue = MIDI::maxNote;
+      displayedValue = midi.maxNote;
     SCREEN_MIDI_NOTE:
       if(LCDstate != lastLCDstate || displayedValue != lastDisplayedValue || editing != lastEditing) {
         char buf[17];
@@ -278,7 +249,7 @@ void updateLCD() {
       }
       break;
     case SCREEN_AUDIO_MODE:
-      displayedValue = (uint16_t)Audio::audioMode;
+      displayedValue = (uint16_t)audio.audioMode;
       if(LCDstate != lastLCDstate || displayedValue != lastDisplayedValue || editing != lastEditing) {
         char buf[17];
         snprintf(buf, 17, "%c%s                ", editing ? '>' : ' ', Audio::audioModeNames[displayedValue]);
@@ -288,7 +259,7 @@ void updateLCD() {
       break;
 #ifdef SAVE_BASE_MIDI
     case SCREEN_MIDI_BASE:
-      if(!editing && lastEditing) DFS.write(0, MIDI::MIDIbaseChannel);
+      if(!editing && lastEditing) DFS.write(0, midi.MIDIbaseChannel);
 #endif
     default:
       // Print value
@@ -336,27 +307,25 @@ void updateLCD() {
   LCDframe++;
 }
 
-void MIDIping(int8_t c) {
+void LCD::MIDIping(int8_t c) {
   // Don't cover display of playing channels with non-playing channels
   if(c < 0 && MIDIpingChan >= 0) return;
   lastMIDIping = LCDframe;
   MIDIpingChan = c;
 }
 
-uint16_t displayTypeUINT32(void *data) {
+uint16_t LCD::displayTypeUINT32(void *data) {
   return *(uint32_t*)data;
 }
 
-uint16_t displayTypeUINT8scaled(void *data) {
+uint16_t LCD::displayTypeUINT8scaled(void *data) {
   return ((uint16_t)*(uint8_t*)data)*100/255;
 }
 
-uint16_t displayTypeMIDIchannel(void *data) {
+uint16_t LCD::displayTypeMIDIchannel(void *data) {
   return *(uint8_t*)data+1;
 }
 
-uint16_t displayTypeUINT32Hz(void *data) {
+uint16_t LCD::displayTypeUINT32Hz(void *data) {
   return 100000 / *(uint32_t*)data;
-}
-
 }

@@ -4,10 +4,10 @@
 #include "Coil.h"
 #include "AudioEngine.h"
 
-Coil::Coil(const char *name, uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), _millis(0), midi(this), synth(this), audio(this), knob(this), lcd(this, name), lcdObj(this), voicesUpdating(0) {
+Coil::Coil(const char *name, uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), _millis(0), lc(this, name), midi(*this, voices, synth, lcd), synth(*this, voices, midi), audio(synth), knob(*this, synth, lcd, midi, audio), lcd(*this, synth, midi, audio), voicesUpdating(0) {
 	midi.MIDIbaseChannel = MIDIbaseChannel;
 	memset(oscillators, 0, sizeof(oscillators));
-	memset(voices, 0, sizeof(voices));
+	lcd.init();
 }
 
 bool Coil::getNextSample() {
@@ -34,7 +34,7 @@ void Coil::handleMIDI(const unsigned char *pass) {
 
 void Coil::updateSynth() {
 	_millis++;
-	synth.updateSynth();
+	synth.update();
 }
 
 // The following functions emulate the behavior of the real timer update functions

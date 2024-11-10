@@ -5,8 +5,8 @@ BIN=tcsynth
 MCU=../Tesla_Coil_MIDI_Synth
 
 # Files to compile and patch if necessary
-SOURCES=seded/MIDI.cpp seded/Synth.cpp seded/Audio.cpp seded/LCD.cpp seded/Knob.cpp Drum.cpp BarChars.cpp Coil.cpp AudioEngine.cpp Convolution.cpp LiquidCrystal.cpp ir.s LCDFont.s
-HEADERS=seded/MIDI.h seded/Synth.h patched/Voice.h seded/Audio.h seded/LCD.h seded/Knob.h Coil.h AudioEngine.h Convolution.h LiquidCrystal.h RingBuffer.h
+SOURCES=patched/MIDI.cpp patched/Synth.cpp patched/Voice.cpp patched/Audio.cpp patched/LCD.cpp patched/Knob.cpp Drum.cpp BarChars.cpp Coil.cpp AudioEngine.cpp Convolution.cpp LiquidCrystal.cpp ir.s LCDFont.s
+HEADERS=patched/MIDI.h patched/Synth.h patched/Voice.h patched/Audio.h patched/LCD.h patched/Knob.h Coil.h AudioEngine.h Convolution.h LiquidCrystal.h RingBuffer.h
 
 # Get portaudio flags from pkg-config
 PORTAUDIO_CFLAGS:=$(shell pkg-config --cflags portaudiocpp)
@@ -27,18 +27,12 @@ CXXFLAGS=$(TARGET) -O2 -Wall -Wextra -Wno-unused-parameter -std=c++17 -DF_CPU=84
 
 OBJS:=$(SOURCES:%.cpp=build/%.o)
 HEADERS:=$(HEADERS:patched/%=build/patched/%)
-HEADERS:=$(HEADERS:seded/%=build/seded/%)
-
-# sed in-place command syntax
-INPLACE:=-i
 
 # OS-specific overrides
 UNAME:=$(shell uname)
 
 # macOS
 ifeq ($(UNAME), Darwin)
-	INPLACE:=-i '' # BSD sed requires different syntax
-	
 	# Configure libremidi
 	LIBREMIDI_CFLAGS+=-DLIBREMIDI_COREAUDIO=1
 	LIBREMIDI_LIBS+=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation
@@ -97,12 +91,6 @@ build/patched/%: $(MCU)/% patches/%.patch
 	@cp $< $@
 	@patch $@ $(word 2,$^)
 
-# Modify files with sed
-build/seded/%: build/patched/% sed-scripts/%.sed
-	@mkdir -p $(@D)
-	cp $< $@
-	sed -Ef $(word 2,$^) $(INPLACE) $@
-
 # Generate object files
 build/%.o: %.cpp $(HEADERS)
 	@mkdir -p $(@D)
@@ -123,4 +111,4 @@ clean:
 
 # Create patches from edited files in build/patched
 patches:
-	for i in build/patched/*.{cpp,h}; do j=$$(basename $$i); diff $(MCU)/$$j $$i > patches/$$j.patch || true; done
+	for i in build/patched/*.{cpp,h}; do j=$$(basename $$i); diff -u $(MCU)/$$j $$i > patches/$$j.patch || true; done

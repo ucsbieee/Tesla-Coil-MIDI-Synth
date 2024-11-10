@@ -126,8 +126,8 @@ int main(int argc, char **argv) {
 	// Run until user quits
 	while(LiquidCrystal::pollSDL())
 		for(auto &coil:coils) {
-			coil.lcdObj.updateLCD();
-			coil.knob.updateKnob();
+			coil.lcd.update();
+			coil.knob.update();
 		}
 
 	outputStream.stop();

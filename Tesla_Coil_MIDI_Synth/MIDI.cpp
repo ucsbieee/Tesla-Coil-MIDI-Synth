@@ -7,48 +7,11 @@
 #include <limits.h>
 #include <MIDIUSB.h>
 
-namespace MIDI {
+MIDI::MIDI(Voices &voices, Synth &synth, LCD &lcd): voices(voices), synth(synth), lcd(lcd) {}
 
-const float midi2freq[] = {8.18,8.66,9.18,9.72,10.30,10.91,11.56,12.25,12.98,13.75,14.57,15.43,16.35,17.32,18.35,19.45,20.60,21.83,23.12,24.50,25.96,27.50,29.14,30.87,32.70,34.65,36.71,38.89,41.20,43.65,46.25,49.00,51.91,55.00,58.27,61.74,65.41,69.30,73.42,77.78,82.41,87.31,92.50,98.00,103.83,110.00,116.54,123.47,130.81,138.59,146.83,155.56,164.81,174.61,185.00,196.00,207.65,220.00,233.08,246.94,261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88,523.25,554.37,587.33,622.25,659.26,698.46,739.99,783.99,830.61,880.00,932.33,987.77,1046.50,1108.73,1174.66,1244.51,1318.51,1396.91,1479.98,1567.98,1661.22,1760.00,1864.66,1975.53,2093.00,2217.46,2349.32,2489.02,2637.02,2793.83,2959.96,3135.96,3322.44,3520.00,3729.31,3951.07,4186.01,4434.92,4698.64,4978.03,5274.04,5587.65,5919.91,6271.93,6644.88,7040.00,7458.62,7902.13,8372.02,8869.84,9397.27,9956.06,10548.08,11175.30,11839.82,12543.85};
+const float MIDI::midi2freq[] = {8.18,8.66,9.18,9.72,10.30,10.91,11.56,12.25,12.98,13.75,14.57,15.43,16.35,17.32,18.35,19.45,20.60,21.83,23.12,24.50,25.96,27.50,29.14,30.87,32.70,34.65,36.71,38.89,41.20,43.65,46.25,49.00,51.91,55.00,58.27,61.74,65.41,69.30,73.42,77.78,82.41,87.31,92.50,98.00,103.83,110.00,116.54,123.47,130.81,138.59,146.83,155.56,164.81,174.61,185.00,196.00,207.65,220.00,233.08,246.94,261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88,523.25,554.37,587.33,622.25,659.26,698.46,739.99,783.99,830.61,880.00,932.33,987.77,1046.50,1108.73,1174.66,1244.51,1318.51,1396.91,1479.98,1567.98,1661.22,1760.00,1864.66,1975.53,2093.00,2217.46,2349.32,2489.02,2637.02,2793.83,2959.96,3135.96,3322.44,3520.00,3729.31,3951.07,4186.01,4434.92,4698.64,4978.03,5274.04,5587.65,5919.91,6271.93,6644.88,7040.00,7458.62,7902.13,8372.02,8869.84,9397.27,9956.06,10548.08,11175.30,11839.82,12543.85};
 
-// CC parameters
-uint8_t tremoloDepth = TREMOLO_DEPTH_DEFAULT;
-uint32_t tremoloPeriod = TREMOLO_PERIOD_DEFAULT;
-uint32_t tremoloDelay = TREMOLO_DELAY_DEFAULT;
-uint8_t tremoloDepthCC = TREMOLO_DEPTH_DEFAULT_CC;
-uint8_t tremoloPeriodCC = TREMOLO_PERIOD_DEFAULT_CC;
-uint8_t tremoloDelayCC = TREMOLO_DELAY_DEFAULT_CC;
-
-uint8_t vibratoDepth = VIBRATO_DEPTH_DEFAULT;
-uint32_t vibratoPeriod = VIBRATO_PERIOD_DEFAULT;
-uint32_t vibratoDelay = VIBRATO_DELAY_DEFAULT;
-uint8_t vibratoDepthCC = VIBRATO_DEPTH_DEFAULT_CC;
-uint8_t vibratoPeriodCC = VIBRATO_PERIOD_DEFAULT_CC;
-uint8_t vibratoDelayCC = VIBRATO_DELAY_DEFAULT_CC;
-
-uint32_t attack = ATTACK_DEFAULT;
-uint32_t decay = DECAY_DEFAULT;
-uint8_t sustain = SUSTAIN_DEFAULT;
-uint32_t release = RELEASE_DEFAULT;
-uint8_t attackCC = ATTACK_DEFAULT_CC;
-uint8_t decayCC = DECAY_DEFAULT_CC;
-uint8_t sustainCC = SUSTAIN_DEFAULT_CC;
-uint8_t releaseCC = RELEASE_DEFAULT_CC;
-
-uint32_t arpeggioPeriod = ARPEGGIO_PERIOD_DEFAULT;
-uint8_t arpeggioPeriodCC = ARPEGGIO_PERIOD_DEFAULT_CC;
-
-// Limit note range
-uint8_t minNote = 0;
-uint8_t maxNote = MIDI_MAX_NOTE;
-
-// Buffer data coming in through hardware MIDI
-unsigned char hwMIDIbuf[3], hwMIDIbufInd = 0;
-
-// Base channel
-uint8_t MIDIbaseChannel = 0;
-
-void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
+void MIDI::noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
   if(channel >= CHANNEL_INVALID) return;
 
   // Reject notes we shouldn't play
@@ -66,21 +29,21 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
     if(!drum) return;
   }
   
-  Voice::voicesUpdating = 1;
+  voices.updating = 1;
   
   int chosen = -1;
 
   // Arp notes should be combined
   if(channel == CHANNEL_ARP)
     for(unsigned int x=0; x<NVOICES; x++)
-      if(Voice::voices[x].midiChannel == CHANNEL_ARP && (Voice::voices[x].midiNoteDown == Voice::voices[x].active)) {
+      if(voices[x].midiChannel == CHANNEL_ARP && (voices[x].midiNoteDown == voices[x].active)) {
         chosen = x;
         break;
       }
 
   // Use any unused voice
   for(unsigned int x=0; chosen<0 && x<NVOICES; x++)
-    if(!Voice::voices[x].active)
+    if(!voices[x].active)
       chosen = x;
 
   // If all voices are in use...
@@ -88,8 +51,8 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
     // Drum prefers to replace another drum
     unsigned long longest = 0;
     for(unsigned int x=0; x<NVOICES; x++) {
-      if(Voice::voices[x].midiChannel == CHANNEL_DRUM) {
-        unsigned long dt = ms - Voice::voices[x].noteDownTimestamp;
+      if(voices[x].midiChannel == CHANNEL_DRUM) {
+        unsigned long dt = ms - voices[x].noteDownTimestamp;
         if(dt >= longest) {
           chosen = x;
           longest = dt;
@@ -102,7 +65,7 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
     // Replace oldtest note
     unsigned long longest = 0;
     for(unsigned int x=0; x<NVOICES; x++) {
-      unsigned long dt = ms - Voice::voices[x].noteDownTimestamp;
+      unsigned long dt = ms - voices[x].noteDownTimestamp;
       if(dt >= longest) {
         chosen = x;
         longest = dt;
@@ -110,7 +73,7 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
     }
   }
 
-  Voice::Voice &chosenVoice = Voice::voices[chosen];
+  auto &chosenVoice = voices[chosen];
 
   if(channel == CHANNEL_ARP) {
     int arpInsert = 0;
@@ -189,19 +152,19 @@ void noteDown(uint8_t channel, uint8_t note, uint8_t vel) {
 
   chosenVoice.drum = drum;
 
-  if(Voice::voicesUpdating > 1) {
-    Voice::voicesUpdating = 0;
-    Synth::updateSynth();
+  if(voices.updating > 1) {
+    voices.updating = 0;
+    synth.update();
     return;
   }
-  Voice::voicesUpdating = 0;
+  voices.updating = 0;
 }
 
-void noteUp(uint8_t channel, uint8_t note) {
-  Voice::voicesUpdating = 1;
+void MIDI::noteUp(uint8_t channel, uint8_t note) {
+  voices.updating = 1;
 
   for(unsigned int x=0; x<NVOICES; x++) {
-    Voice::Voice &voice = Voice::voices[x];
+    auto &voice = voices[x];
     if(voice.midiChannel == channel) {
       if(channel == CHANNEL_ARP) {
         unsigned long ms = millis();
@@ -214,17 +177,17 @@ void noteUp(uint8_t channel, uint8_t note) {
     }
   }
 
-  if(Voice::voicesUpdating > 1) {
-    Voice::voicesUpdating = 0;
-    Synth::updateSynth();
+  if(voices.updating > 1) {
+    voices.updating = 0;
+    synth.update();
     return;
   }
-  Voice::voicesUpdating = 0;
+  voices.updating = 0;
 }
 
-void aftertouch(uint8_t channel, uint8_t note, uint8_t vel) {
+void MIDI::aftertouch(uint8_t channel, uint8_t note, uint8_t vel) {
   for(unsigned int x=0; x<NVOICES; x++) {
-    Voice::Voice &voice = Voice::voices[x];
+    auto &voice = voices[x];
     if(voice.midiChannel == channel) {
       bool thisVoice = (voice.midiNote == note);
       if(!thisVoice && voice.midiChannel == CHANNEL_ARP) { // Check if this command is for one of the arp notes
@@ -243,22 +206,22 @@ void aftertouch(uint8_t channel, uint8_t note, uint8_t vel) {
   }
 }
 
-void pitchBend(uint8_t channel, uint8_t low7, uint8_t high7) {
+void MIDI::pitchBend(uint8_t channel, uint8_t low7, uint8_t high7) {
   int16_t pb = (int16_t)(((int16_t)high7)<<7 | low7) - 0x2000;
   for(unsigned int x=0; x<NVOICES; x++) {
-    Voice::Voice &voice = Voice::voices[x];
+    auto &voice = voices[x];
     if(voice.midiChannel == channel)
       voice.midiPB = pb;
   }
 }
 
-void cc(uint8_t channel, uint8_t control, uint8_t value) {
+void MIDI::cc(uint8_t channel, uint8_t control, uint8_t value) {
   (void)channel; // Unused
 
   switch(control) {
     case 120: // All sound/oscillators off
     case 123:
-      Synth::stopSynth();
+      synth.stop();
       break;
     case 121: // Reset stuff to initial values
         tremoloDepth = TREMOLO_DEPTH_DEFAULT;
@@ -335,7 +298,7 @@ void cc(uint8_t channel, uint8_t control, uint8_t value) {
   }
 }
 
-void handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3) {
+void MIDI::handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3) {
   unsigned char command = byte1 >> 4;
   unsigned char channel = byte1 & 0xF;
 
@@ -358,10 +321,10 @@ void handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3) {
   // Ignore MIDI channels that we don't respond to
   int16_t offsetChannel = (int16_t)channel - (int16_t)MIDIbaseChannel;
   if(offsetChannel < CHANNEL_CLEAN || offsetChannel >= CHANNEL_INVALID) {
-    LCD::MIDIping(-1);
+    lcd.MIDIping(-1);
     return;
   }
-  LCD::MIDIping(channel);
+  lcd.MIDIping(channel);
   channel = offsetChannel;
 
   switch(command) {
@@ -388,7 +351,7 @@ void handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3) {
   }
 }
 
-void initMIDI() {
+void MIDI::init() {
 #ifdef PRINTMIDI
   SerialUSB.begin(115200);
 #endif
@@ -397,7 +360,7 @@ void initMIDI() {
   Serial.begin(31250);
 }
 
-void processMIDI() {
+void MIDI::process() {
   static midiEventPacket_t rx;
   rx = MidiUSB.read();
   if(rx.header) handleMIDI(rx.byte1, rx.byte2, rx.byte3);
@@ -411,6 +374,4 @@ void processMIDI() {
       handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
     }
   }
-}
-
 }

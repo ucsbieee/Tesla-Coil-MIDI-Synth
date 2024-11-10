@@ -19,10 +19,10 @@ enum {
   BAR_EMPTY = 0xFE,
 };
 
-typedef struct {
+struct LCDchar {
   uint8_t value;
   const uint8_t *data;
-} LCDchar;
+};
 
 #define NBARCHARS 6
 extern const LCDchar BarChars[NBARCHARS];

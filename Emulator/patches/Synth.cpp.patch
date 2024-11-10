@@ -1,82 +1,97 @@
-5d4
-< #include <Arduino.h>
-6a6,7
-> #include <math.h>
-> #include <string.h>
-8c9
-< namespace Synth {
----
-> #include "Coil.h"
-9a11,14
-> #define PI M_PI
-> 
-> Synth::Synth(Coil *parent): coil(parent) {
-> 
-12a18,20
-> initSynth();
-> }
-> 
-16,18d23
-< void updateWidth(uint8_t chan, uint32_t pulseWidth);
-< void updatePeriod(uint8_t chan, uint32_t period);
-< 
-217,219d221
-< 
-<   // Reset WDT
-<   WDT->WDT_CR = WDT_CR_KEY(0xA5) | WDT_CR_WDRSTT;
-226,280d227
-< 
-< // Update pulse width of a timer
-< inline __attribute__((always_inline)) void updateWidth(uint8_t chan, uint32_t pulseWidth) {
-<   const Voice::VoiceConfig &vc = Voice::voiceConfigs[chan];
-<   if(vc.timerab) {
-<     // If we decrease the compare value below the counter value, it will never equal it to set the pin low
-<     //   and the pin will stay high for an entire period (bad).
-<     // Include some margin since counter will keep going as the code runs
-<     if(vc.channel->TC_RB > vc.channel->TC_CV && pulseWidth < vc.channel->TC_CV+10) {
-<       uint32_t temp = vc.channel->TC_CV; // save count value
-<       vc.channel->TC_CCR = TC_CCR_SWTRG; // trigger the timer to reset it back to 0 and set pin low
-<       vc.channel->TC_CV = temp; // put counter value back
-<     }
-<     vc.channel->TC_RB = pulseWidth; // update pulse width
-<     if(pulseWidth < MIN_WIDTH) {
-<       vc.channel->TC_CMR &= ~TC_CMR_BCPC_SET; // disable output if pulse width is too small
-<       vc.channel->TC_CCR = TC_CCR_SWTRG; // re-trigger the timer
-<     } else vc.channel->TC_CMR |= TC_CMR_BCPC_SET;
-<   } else {
-<     if(vc.channel->TC_RA > vc.channel->TC_CV && pulseWidth < vc.channel->TC_CV+10) {
-<       uint32_t temp = vc.channel->TC_CV;
-<       vc.channel->TC_CCR = TC_CCR_SWTRG;
-<       vc.channel->TC_CV = temp;
-<     }
-<     vc.channel->TC_RA = pulseWidth;
-<     if(pulseWidth < MIN_WIDTH) {
-<       vc.channel->TC_CMR &= ~TC_CMR_ACPC_SET;
-<       vc.channel->TC_CCR = TC_CCR_SWTRG;
-<     } else vc.channel->TC_CMR |= TC_CMR_ACPC_SET;
-<   }
-< }
-< 
-< // Update frequency of a timer
-< inline __attribute__((always_inline)) void updatePeriod(uint8_t chan, uint32_t period) {
-<   const Voice::VoiceConfig &vc = Voice::voiceConfigs[chan];
-<   vc.channel->TC_RC = period;
-<   if(vc.channel->TC_CV > period) { // Reset so counter stays below the period (otherwise would get long pulses)
-<     if(vc.timerab) {
-<       // Temporarily make software trigger set the pin instead of reset in order to behave the same as an RC compare
-<       if(vc.channel->TC_CMR & TC_CMR_BCPC_SET) { // Only do this if the output is enabled
-<         vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_BSWTRG_Pos)) | TC_CMR_BSWTRG_SET;
-<         vc.channel->TC_CCR = TC_CCR_SWTRG;
-<         vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_BSWTRG_Pos)) | TC_CMR_BSWTRG_CLEAR;
-<       }
-<     } else {
-<       if(vc.channel->TC_CMR & TC_CMR_ACPC_SET) {
-<         vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_ASWTRG_Pos)) | TC_CMR_ASWTRG_SET;
-<         vc.channel->TC_CCR = TC_CCR_SWTRG;
-<         vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_ASWTRG_Pos)) | TC_CMR_ASWTRG_CLEAR;
-<       }
-<     }
-<   }
-< }
-< 
-< }
+--- ../Tesla_Coil_MIDI_Synth/Synth.cpp	2024-11-09 18:51:12
++++ build/patched/Synth.cpp	2024-11-09 20:34:06
+@@ -1,14 +1,17 @@
++#include <cmath>
++#define PI M_PI
++#include "Coil.h"
++
+ #include "Synth.h"
+ #include "Voice.h"
+ #include "MIDI.h"
+ 
+-#include <Arduino.h>
+ #include <limits.h>
+ 
+ uint8_t Synth::eLookup[LUTSIZE];
+ int8_t Synth::sinLookup[LUTSIZE];
+ 
+-Synth::Synth(Voices &voices, MIDI &midi): voices(voices), midi(midi) {
++Synth::Synth(Coil &coil, Voices &voices, MIDI &midi): coil(coil), voices(voices), midi(midi) {
+   // Precompute exponential decay thing
+   const float scale = expf(-EXP_CRUNCH);
+   for(int x=0; x<LUTSIZE; x++)
+@@ -34,7 +37,7 @@
+     auto &voice = voices[x];
+     
+     if(voice.active) {
+-      unsigned long ms = millis();
++      unsigned long ms = coil.millis();
+   
+       // Process ADSR/pulse width
+       uint16_t env = 255;
+@@ -206,9 +209,6 @@
+       updateWidth(x, 0);
+     }
+   }
+-
+-  // Reset WDT
+-  WDT->WDT_CR = WDT_CR_KEY(0xA5) | WDT_CR_WDRSTT;
+ }
+ 
+ void Synth::stop() {
+@@ -218,53 +218,10 @@
+ 
+ // Update pulse width of a timer
+ void Synth::updateWidth(uint8_t chan, uint32_t pulseWidth) {
+-  const auto &vc = voices.voiceConfigs[chan];
+-  if(vc.timerab) {
+-    // If we decrease the compare value below the counter value, it will never equal it to set the pin low
+-    //   and the pin will stay high for an entire period (bad).
+-    // Include some margin since counter will keep going as the code runs
+-    if(vc.channel->TC_RB > vc.channel->TC_CV && pulseWidth < vc.channel->TC_CV+10) {
+-      uint32_t temp = vc.channel->TC_CV; // save count value
+-      vc.channel->TC_CCR = TC_CCR_SWTRG; // trigger the timer to reset it back to 0 and set pin low
+-      vc.channel->TC_CV = temp; // put counter value back
+-    }
+-    vc.channel->TC_RB = pulseWidth; // update pulse width
+-    if(pulseWidth < MIN_WIDTH) {
+-      vc.channel->TC_CMR &= ~TC_CMR_BCPC_SET; // disable output if pulse width is too small
+-      vc.channel->TC_CCR = TC_CCR_SWTRG; // re-trigger the timer
+-    } else vc.channel->TC_CMR |= TC_CMR_BCPC_SET;
+-  } else {
+-    if(vc.channel->TC_RA > vc.channel->TC_CV && pulseWidth < vc.channel->TC_CV+10) {
+-      uint32_t temp = vc.channel->TC_CV;
+-      vc.channel->TC_CCR = TC_CCR_SWTRG;
+-      vc.channel->TC_CV = temp;
+-    }
+-    vc.channel->TC_RA = pulseWidth;
+-    if(pulseWidth < MIN_WIDTH) {
+-      vc.channel->TC_CMR &= ~TC_CMR_ACPC_SET;
+-      vc.channel->TC_CCR = TC_CCR_SWTRG;
+-    } else vc.channel->TC_CMR |= TC_CMR_ACPC_SET;
+-  }
++  coil.updateWidth(chan, pulseWidth);
+ }
+ 
+ // Update frequency of a timer
+ void Synth::updatePeriod(uint8_t chan, uint32_t period) {
+-  const auto &vc = voices.voiceConfigs[chan];
+-  vc.channel->TC_RC = period;
+-  if(vc.channel->TC_CV > period) { // Reset so counter stays below the period (otherwise would get long pulses)
+-    if(vc.timerab) {
+-      // Temporarily make software trigger set the pin instead of reset in order to behave the same as an RC compare
+-      if(vc.channel->TC_CMR & TC_CMR_BCPC_SET) { // Only do this if the output is enabled
+-        vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_BSWTRG_Pos)) | TC_CMR_BSWTRG_SET;
+-        vc.channel->TC_CCR = TC_CCR_SWTRG;
+-        vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_BSWTRG_Pos)) | TC_CMR_BSWTRG_CLEAR;
+-      }
+-    } else {
+-      if(vc.channel->TC_CMR & TC_CMR_ACPC_SET) {
+-        vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_ASWTRG_Pos)) | TC_CMR_ASWTRG_SET;
+-        vc.channel->TC_CCR = TC_CCR_SWTRG;
+-        vc.channel->TC_CMR = (vc.channel->TC_CMR & ~(0b11<<TC_CMR_ASWTRG_Pos)) | TC_CMR_ASWTRG_CLEAR;
+-      }
+-    }
+-  }
++  coil.updatePeriod(chan, period);
+ }

@@ -11,12 +11,11 @@ Prerequisites
  * [`SDL2`](https://www.libsdl.org) (and `SDL2_ttf`)
  * GNU `make`
  * `patch`
- * `sed`
  * C++17 compiler
 
 You may need to modify the makefile slightly to get it to find the libraries on your system (it uses `pkg-config` by default) or to select a different backend for `libremidi` depending on your operating system.
 
-Running `make` will take the code from the main firmware in this repo, apply some patches to remove MCU-specific code, and use `sed` to convert all global variables into C++ class members so that multiple instances of the synthesizer can be run at a time.
+Running `make` will take the code from the main firmware in this repo and apply some patches to remove MCU-specific code.
 
 ## Using
 
@@ -28,7 +27,7 @@ Use the arrow keys and return/space or mouse wheel and click to navigate the set
 
 ## Modifying
 
-Significant modifications to the MCU firmware may require the patches to be re-done. Changes to files can be propagated back to the .patch files by running `make patches` after modifying the files produced by running `make build/patched/x.cpp`.
+Significant modifications to the MCU firmware may require the patches to be re-done. Changes to files can be propagated back to the `.patch` files by running `make patches` after modifying the files produced by running `make build/patched/x.cpp`.
 
 ## Attribution
 

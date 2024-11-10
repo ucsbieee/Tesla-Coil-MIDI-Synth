@@ -1,15 +1,25 @@
-5c5
-< namespace Synth {
----
-> class Coil;
-6a7,12
-> class Synth {
-> public:
-> 
-> Synth(Coil *parent);
-> Coil *coil;
-> 
-29c35
-< }
----
-> };
+--- ../Tesla_Coil_MIDI_Synth/Synth.h	2024-11-09 18:51:12
++++ build/patched/Synth.h	2024-11-09 20:34:14
+@@ -18,12 +18,13 @@
+ 
+ #define LUTSIZE 256
+ 
++class Coil;
+ class Voices;
+ class MIDI;
+ 
+ class Synth {
+ public:
+-  Synth(Voices &voices, MIDI &midi);
++  Synth(Coil &coil, Voices &voices, MIDI &midi);
+   
+   uint8_t vol = 64;
+   
+@@ -32,6 +33,7 @@
+   void update();
+   
+ private:
++  Coil &coil;
+   Voices &voices;
+   MIDI &midi;
+   

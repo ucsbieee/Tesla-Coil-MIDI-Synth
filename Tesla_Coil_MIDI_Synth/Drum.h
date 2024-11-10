@@ -5,7 +5,7 @@
 namespace Drum {
 
 // Drum presets
-typedef struct {
+struct Drum {
   // MIDI note to be triggered by
   uint8_t midiNote;
 
@@ -19,7 +19,7 @@ typedef struct {
   // Amount/type of frequency modulation
   float noiseMod;
   float envMod;
-} Drum;
+};
 
 #define NDRUMS 5
 extern const Drum drumPresets[NDRUMS];

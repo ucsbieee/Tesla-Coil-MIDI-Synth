@@ -93,7 +93,7 @@ void AudioEngine::generate(float *output) {
 			sample += min(max(coil.audio.processSample(inputSample * 0x7FFF) / (float)(F_CPU/NOM_SAMPLE_RATE), -1.0f), 1.0f);
 
 			const float alpha = 0.0002;
-			coil.lcdObj.averageVolume = coil.lcdObj.averageVolume * (1-alpha) + sample * alpha;
+			coil.lcd.averageVolume = coil.lcd.averageVolume * (1-alpha) + sample * alpha;
 
 			sample *= VOLUME;
 

@@ -49,14 +49,14 @@ private:
 	unsigned long _millis;
 
 public:
-	// Instances of synth components that would normally be global scope in the real controller
+	// Instances of synth components
+	LiquidCrystal lc;
+	Voices voices;
 	MIDI midi;
 	Synth synth;
 	Audio audio;
 	Knob knob;
-	LiquidCrystal lcd;
-	LCD lcdObj;
-	Voice::Voice voices[NVOICES];
+	LCD lcd;
 	volatile uint8_t voicesUpdating;
 	
 	// Functions to affect oscillator behavior

@@ -2,8 +2,6 @@
 
 #include <inttypes.h>
 
-namespace Audio {
-
 // Buffer sizes
 #define NBUFS 5
 #define BUF_SIZE 64
@@ -24,32 +22,67 @@ namespace Audio {
 #define PIO PIOA
 #define PIN (1 << 21)
 
-struct Buffer {
-  uint16_t len;
-  uint16_t buf[BUF_SIZE];
+class Synth;
+
+class Audio {
+public:
+  Audio(Synth &synth);
+  
+  enum AudioMode {
+    AM_OFF,
+    AM_BINARY,
+    AM_PROCESSED,
+    AM_PWM,
+    AM_INVALID
+  };
+  
+  AudioMode audioMode = AM_OFF;
+  static const char *audioModeNames[AM_INVALID];
+  
+  void init();
+  void start();
+  void stop();
+  void process();
+  
+  // Called by ISR in main file
+  void setDMABuffer();
+
+private:
+  Synth &synth;
+  
+  struct Buffer {
+    uint16_t len;
+    uint16_t buf[BUF_SIZE];
+  };
+  
+  // Sample period
+  uint32_t period = (F_CPU/NOM_SAMPLE_RATE) << PERIOD_ADJ_SPEED;
+  
+  // Ring buffer of buffers
+  volatile Buffer bufs[NBUFS];
+  uint8_t readBuffer, writeBuffer;
+  
+  // Empty buffer to insert when no data available
+  uint16_t zeroBuf[ZERO_BUF_SIZE];
+  
+  // Flag to drop incoming buffers if we're really behind on playing
+  bool purgeBufs;
+  
+  // DMA and stuff currently enabled
+  bool audioRunning;
+  
+  // Last time we got new audio data
+  unsigned long lastAudioTimestamp;
+  
+  // Last processed sample (used for AM_PROCESSED mode)
+  int32_t lastSample;
+  
+  // Baseline (used for AM_PWM mode)
+  int32_t baseline;
+  
+  // Return amount of filled buffers in ring buffer of buffers
+  uint8_t bufsFilled();
+
+  // Handle a single sample
+  uint16_t processSample(int32_t in);
 };
-
-enum AudioMode {
-  AM_OFF,
-  AM_BINARY,
-  AM_PROCESSED,
-  AM_PWM,
-  AM_INVALID
-};
-
-extern AudioMode audioMode;
-extern const char *audioModeNames[AM_INVALID];
-
-extern int32_t lastSample;
-extern int32_t baseline;
-
-void initAudio();
-void startAudio();
-void stopAudio();
-void processAudio();
-uint16_t processSample(int32_t in);
-
-// Called by ISR in main file
-void setDMABuffer();
-
-}

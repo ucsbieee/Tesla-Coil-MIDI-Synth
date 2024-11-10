@@ -1,21 +1,29 @@
-4d3
-< #include <sam.h>
-45,53d43
-< typedef struct {
-<   Tc *timer;
-<   TcChannel *channel;
-<   Pio *port;
-<   uint8_t portN;
-<   bool peripheralab;
-<   bool timerab;
-< } VoiceConfig;
-< 
-56,63d45
-< extern const VoiceConfig voiceConfigs[NVOICES];
-< 
-< extern Voice voices[NVOICES];
-< extern volatile uint8_t voicesUpdating;
-< 
-< // Functions
-< void initVoices();
-< 
+--- ../Tesla_Coil_MIDI_Synth/Voice.h	2024-11-09 19:47:38
++++ build/patched/Voice.h	2024-11-09 20:34:14
+@@ -1,7 +1,6 @@
+ #pragma once
+ 
+ #include <inttypes.h>
+-#include <sam.h>
+ 
+ #include "Drum.h"
+ 
+@@ -44,18 +43,7 @@
+     // Timestamp when this note started
+     unsigned long noteDownTimestamp;
+   };
+-
+-  struct VoiceConfig {
+-    Tc *timer;
+-    TcChannel *channel;
+-    Pio *port;
+-    uint8_t portN;
+-    bool peripheralab;
+-    bool timerab;
+-  };
+   
+-  const VoiceConfig voiceConfigs[NVOICES];
+-  
+   volatile uint8_t updating = 0;
+   
+   // Functions

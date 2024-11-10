@@ -8,20 +8,26 @@
 // Uncomment to save MIDI base channel to flash
 // #define SAVE_BASE_MIDI
 
-namespace MIDI {
+class Voices;
+class Synth;
+class LCD;
 
-extern const float midi2freq[];
-
-// Channels
-enum {
-  CHANNEL_CLEAN,
-  CHANNEL_FX,
-  CHANNEL_ARP,
-  CHANNEL_DRUM,
-  CHANNEL_INVALID
-};
-
-extern uint8_t MIDIbaseChannel;
+class MIDI {
+public:
+  MIDI(Voices &voices, Synth &synth, LCD &lcd);
+  
+  static const float midi2freq[];
+  
+  // Channels
+  enum {
+    CHANNEL_CLEAN,
+    CHANNEL_FX,
+    CHANNEL_ARP,
+    CHANNEL_DRUM,
+    CHANNEL_INVALID
+  };
+  
+  uint8_t MIDIbaseChannel = 0;
 
 // Effect settings
 #define TREMOLO_PERIOD_MAX 3000
@@ -44,12 +50,12 @@ extern uint8_t MIDIbaseChannel;
 #define TREMOLO_PERIOD_CC 102
 #define TREMOLO_DELAY_CC 103
 
-extern uint8_t tremoloDepth;
-extern uint32_t tremoloPeriod;
-extern uint32_t tremoloDelay;
-extern uint8_t tremoloDepthCC;
-extern uint8_t tremoloPeriodCC;
-extern uint8_t tremoloDelayCC;
+  uint8_t tremoloDepth = TREMOLO_DEPTH_DEFAULT;
+  uint32_t tremoloPeriod = TREMOLO_PERIOD_DEFAULT;
+  uint32_t tremoloDelay = TREMOLO_DELAY_DEFAULT;
+  uint8_t tremoloDepthCC = TREMOLO_DEPTH_DEFAULT_CC;
+  uint8_t tremoloPeriodCC = TREMOLO_PERIOD_DEFAULT_CC;
+  uint8_t tremoloDelayCC = TREMOLO_DELAY_DEFAULT_CC;
 
 #define VIBRATO_DEPTH_MAX 128
 #define VIBRATO_PERIOD_MAX 3000
@@ -72,12 +78,12 @@ extern uint8_t tremoloDelayCC;
 #define VIBRATO_PERIOD_CC 76
 #define VIBRATO_DELAY_CC 78
 
-extern uint8_t vibratoDepth;
-extern uint32_t vibratoPeriod;
-extern uint32_t vibratoDelay;
-extern uint8_t vibratoDepthCC;
-extern uint8_t vibratoPeriodCC;
-extern uint8_t vibratoDelayCC;
+  uint8_t vibratoDepth = VIBRATO_DEPTH_DEFAULT;
+  uint32_t vibratoPeriod = VIBRATO_PERIOD_DEFAULT;
+  uint32_t vibratoDelay = VIBRATO_DELAY_DEFAULT;
+  uint8_t vibratoDepthCC = VIBRATO_DEPTH_DEFAULT_CC;
+  uint8_t vibratoPeriodCC = VIBRATO_PERIOD_DEFAULT_CC;
+  uint8_t vibratoDelayCC = VIBRATO_DELAY_DEFAULT_CC;
 
 #define ADSR_MAX 2000
 
@@ -99,14 +105,14 @@ extern uint8_t vibratoDelayCC;
 #define SUSTAIN_CC 118
 #define RELEASE_CC 119
 
-extern uint32_t attack;
-extern uint32_t decay;
-extern uint8_t sustain;
-extern uint32_t release;
-extern uint8_t attackCC;
-extern uint8_t decayCC;
-extern uint8_t sustainCC;
-extern uint8_t releaseCC;
+  uint32_t attack = ATTACK_DEFAULT;
+  uint32_t decay = DECAY_DEFAULT;
+  uint8_t sustain = SUSTAIN_DEFAULT;
+  uint32_t release = RELEASE_DEFAULT;
+  uint8_t attackCC = ATTACK_DEFAULT_CC;
+  uint8_t decayCC = DECAY_DEFAULT_CC;
+  uint8_t sustainCC = SUSTAIN_DEFAULT_CC;
+  uint8_t releaseCC = RELEASE_DEFAULT_CC;
 
 #define ARPEGGIO_PERIOD_MIN 5
 #define ARPEGGIO_PERIOD_MAX 100
@@ -119,24 +125,33 @@ extern uint8_t releaseCC;
 #define ARPEGGIO_PERIOD_DEFAULT ARPEGGIO_PERIOD_FROM_CC(ARPEGGIO_PERIOD_DEFAULT_CC)
 
 #define ARPEGGIO_CC 14
-extern uint32_t arpeggioPeriod;
-extern uint8_t arpeggioPeriodCC;
+
+  uint32_t arpeggioPeriod = ARPEGGIO_PERIOD_DEFAULT;
+  uint8_t arpeggioPeriodCC = ARPEGGIO_PERIOD_DEFAULT_CC;
 
 #define PITCH_BEND_RANGE 1.1224620483f // 2 semitones
 
 // Limit note range
 #define MIDI_MAX_NOTE 107 // B7
-extern uint8_t minNote;
-extern uint8_t maxNote;
 
-// Functions
-void noteDown(uint8_t channel, uint8_t note, uint8_t vel);
-void noteUp(uint8_t channel, uint8_t note);
-void aftertouch(uint8_t channel, uint8_t note, uint8_t vel);
-void pitchBend(uint8_t channel, uint8_t low7, uint8_t high7);
-void cc(uint8_t channel, uint8_t control, uint8_t value);
-void handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3);
-void initMIDI();
-void processMIDI();
+  uint8_t minNote = 0;
+  uint8_t maxNote = MIDI_MAX_NOTE;
 
-}
+  // Functions
+  void noteDown(uint8_t channel, uint8_t note, uint8_t vel);
+  void noteUp(uint8_t channel, uint8_t note);
+  void aftertouch(uint8_t channel, uint8_t note, uint8_t vel);
+  void pitchBend(uint8_t channel, uint8_t low7, uint8_t high7);
+  void cc(uint8_t channel, uint8_t control, uint8_t value);
+  void handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char byte3);
+  void init();
+  void process();
+
+private:
+  Voices &voices;
+  Synth &synth;
+  LCD &lcd;
+  
+  // Buffer data coming in through hardware MIDI
+  unsigned char hwMIDIbuf[3], hwMIDIbufInd = 0;
+};

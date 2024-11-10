@@ -2,23 +2,18 @@
 
 #include <Arduino.h>
 
-namespace Voice {
-
-const VoiceConfig voiceConfigs[] = {
+Voices::Voices(): voiceConfigs{
   {TC0, &TC0->TC_CHANNEL[0], PIOB, 25, 1, 0},
   {TC0, &TC0->TC_CHANNEL[1], PIOA, 2 , 0, 0},
   {TC0, &TC0->TC_CHANNEL[2], PIOA, 5 , 0, 0},
   {TC1, &TC1->TC_CHANNEL[0], PIOB, 0,  1, 0},
   {TC1, &TC1->TC_CHANNEL[1], PIOB, 2,  1, 0},
   {TC1, &TC1->TC_CHANNEL[2], PIOB, 4,  1, 0}
-};
-
-Voice voices[NVOICES];
-volatile uint8_t voicesUpdating = 0;
-
-void initVoices() {
+} {
   memset(voices, 0, sizeof(voices));
-  
+}
+
+void Voices::init() {
   // Enable watchdog timer so we get reset after 1s if we crash
   // Doesn't seem to work since maybe Arduino stuff writes to it first... whatever
   WDT->WDT_MR = WDT_MR_WDRSTEN | WDT_MR_WDV(255) | WDT_MR_WDD(255);
@@ -57,4 +52,6 @@ void initVoices() {
   }
 }
 
+Voices::Voice &Voices::operator[](unsigned int n) {
+  return voices[n];
 }

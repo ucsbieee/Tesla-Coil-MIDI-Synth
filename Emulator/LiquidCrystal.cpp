@@ -95,7 +95,7 @@ void LiquidCrystal::buttonClick(uint32_t windowID) {
 	if(it == windowMap.end())
 		return;
 	
-	it->second->lcdObj.editing ^= 1;
+	it->second->lcd.editing ^= 1;
 }
 
 void LiquidCrystal::scrollCW(uint32_t windowID) {

@@ -1,74 +1,55 @@
-8d7
-< #include <Arduino.h>
-11,13c10
-< #ifdef SAVE_BASE_MIDI
-< #include <DueFlashStorage.h>
-< #endif
----
-> #include "Coil.h"
-15c12
-< namespace LCD {
----
-> LCD::LCD(Coil *parent): coil(parent),
-17,23c14
-< LiquidCrystal lcd(19, 18, 17, 16, 23, 24);
-< 
-< #ifdef SAVE_BASE_MIDI
-< DueFlashStorage DFS;
-< #endif
-< 
-< const LCD_screen_descriptor screens[] = {
----
-> screens{
-152c143
-< };
----
-> },
-155c146
-< const char *noteNames[] = {
----
-> noteNames{
-168,178c159,161
-< };
-< 
-< unsigned long LCDframe = 0;
-< unsigned long lastLCDframe = 0;
-< unsigned long lastMIDIping = -MIDI_PING_LINGER;
-< int8_t MIDIpingChan = -2, lastMIDIpingChan = MIDIpingChan;
-< 
-< uint8_t LCDstate = SCREEN_PULSE_WIDTH, lastLCDstate = 0xFF;
-< uint16_t displayedValue = Synth::vol, lastDisplayedValue = 0xFFFF;
-< bool editing = false, lastEditing = true;
-< uint8_t volumeBar[16], lastVolumeBar[16];
----
-> } {
->   initLCD();
-> }
-180,183d162
-< unsigned long framesSinceLastInput = 0;
-< 
-< bool showingSplashScreen = true;
-< 
-196,203d174
-< #ifdef SAVE_BASE_MIDI
-<   MIDI::MIDIbaseChannel = DFS.read(0); // Store base channel in flash (may cause issues if program space over 50% full?)
-<   if(MIDI::MIDIbaseChannel > 15) {
-<     MIDI::MIDIbaseChannel = 0;
-<     DFS.write(0, 0);
-<   }
-< #endif
-< 
-212a184,185
-> 
->   lcd.present();
-289,292d261
-< #ifdef SAVE_BASE_MIDI
-<     case SCREEN_MIDI_BASE:
-<       if(!editing && lastEditing) DFS.write(0, MIDI::MIDIbaseChannel);
-< #endif
-336a306,307
-> 
->   lcd.present();
-361a333,334
-> uint16_t analogRead(int channel) {
->   return averageVolume * 1024;
+--- ../Tesla_Coil_MIDI_Synth/LCD.cpp	2024-11-09 18:53:14
++++ build/patched/LCD.cpp	2024-11-09 20:36:10
+@@ -1,3 +1,4 @@
++#include "Coil.h"
+ #include "LCD.h"
+ #include "BarChars.h"
+ #include "Synth.h"
+@@ -21,7 +22,7 @@
+   "B",
+ };
+ 
+-LCD::LCD(Synth &synth, MIDI &midi, Audio &audio): screens{
++LCD::LCD(Coil &coil, Synth &synth, MIDI &midi, Audio &audio): screens{
+   { // SCREEN_PULSE_WIDTH
+     "P Width: ",
+     "%",
+@@ -150,7 +151,7 @@
+     NULL,
+     0
+   }
+-}, synth(synth), midi(midi), audio(audio), lcd(19, 18, 17, 16, 23, 24), displayedValue(synth.vol) {}
++}, coil(coil), synth(synth), midi(midi), audio(audio), lcd(coil.lc), displayedValue(synth.vol) {}
+ 
+ void LCD::init() {
+   lcd.begin(16, 2);
+@@ -181,10 +182,11 @@
+   );
+   lcd.setCursor(0, 1);
+   lcd.print(__DATE__);
++  coil.lc.present();
+ }
+ 
+ void LCD::update() {
+-  unsigned long ms = millis();
++  unsigned long ms = coil.millis();
+   if(ms-lastLCDframe < LCD_UPDATE_PERIOD) return;
+   lastLCDframe = ms;
+ 
+@@ -219,7 +221,7 @@
+         }
+   
+         // Draw volume bar
+-        uint16_t volume = analogRead(6)*30/1023;
++        uint16_t volume = averageVolume*30;
+         volumeBar[0] = volume > 0 ? BAR_LEFT_FULL : BAR_LEFT_EMPTY;
+         volumeBar[15] = volume >= 30 ? BAR_RIGHT_FULL : BAR_RIGHT_EMPTY;
+         for(uint8_t x=1; x<15; x++) {
+@@ -305,6 +307,7 @@
+   } else framesSinceLastInput = 0;
+   
+   LCDframe++;
++  coil.lc.present();
+ }
+ 
+ void LCD::MIDIping(int8_t c) {

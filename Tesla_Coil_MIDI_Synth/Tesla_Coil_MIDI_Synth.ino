@@ -14,39 +14,54 @@
     * 4: Drums: kick (36/C2), snare (40/E2), clap (39/D#2), tom (48/C3), and hi-hat (42/F#2)
  */
 
-#include "MIDI.h"
-#include "Synth.h"
 #include "Voice.h"
-#include "Audio.h"
+#include "Synth.h"
 #include "LCD.h"
+#include "MIDI.h"
+#include "Audio.h"
 #include "Knob.h"
 #include "Connected.h"
 
+extern Voices    voices;
+extern Synth     synth;
+extern LCD       lcd;
+extern MIDI      midi;
+extern Audio     audio;
+extern Knob      knob;
+extern Connected conn;
+
+Voices    voices;
+Synth     synth (voices,             midi       );
+LCD       lcd   (        synth,      midi, audio);
+MIDI      midi  (voices, synth, lcd             );
+Audio     audio (        synth                  );
+Knob      knob  (        synth, lcd, midi, audio);
+Connected conn  (        synth,            audio);
+
 void setup() {
-  MIDI::initMIDI();
-  Synth::initSynth();
-  Voice::initVoices();
-  Audio::initAudio();
-  LCD::initLCD();
-  Knob::initEncoder();
+  midi.init();
+  voices.init();
+  audio.init();
+  lcd.init();
+  knob.init();
 }
 
 void loop() {
-  MIDI::processMIDI();
-  Audio::processAudio();
-  LCD::updateLCD();
-  Knob::updateKnob();
+  midi.process();
+  audio.process();
+  lcd.update();
+  knob.update();
 }
 
 // Must be in main file to override default handler
 void PWM_Handler() {
-  Audio::setDMABuffer();
+  audio.setDMABuffer();
 }
 
 extern "C" {
 int sysTickHook() { // Runs at 1kHz
-  Connected::checkConnected();
-  Synth::updateSynth();
+  conn.checkConnected();
+  synth.update();
   return 0;
 }
 }

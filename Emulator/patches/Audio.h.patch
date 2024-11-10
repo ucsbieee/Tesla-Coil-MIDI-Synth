@@ -1,20 +1,10 @@
-5c5
-< namespace Audio {
----
-> class Coil;
-6a7,12
-> class Audio {
-> public:
-> 
-> Audio(Coil *parent);
-> Coil *coil;
-> 
-46,49d51
-< void initAudio();
-< void startAudio();
-< void stopAudio();
-< void processAudio();
-52c54
-< }
----
-> };
+--- ../Tesla_Coil_MIDI_Synth/Audio.h	2024-11-09 18:51:12
++++ build/patched/Audio.h	2024-11-09 20:34:14
+@@ -83,6 +83,7 @@
+   // Return amount of filled buffers in ring buffer of buffers
+   uint8_t bufsFilled();
+ 
++public:
+   // Handle a single sample
+   uint16_t processSample(int32_t in);
+ };

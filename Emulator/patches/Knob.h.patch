@@ -1,24 +1,44 @@
-5c5
-< namespace Knob {
----
-> class Coil;
-6a7,16
-> class Knob {
-> public:
-> 
-> Knob(Coil *parent);
-> Coil *coil;
-> 
-> int8_t movement = 0;
-> int32_t recentMovement = 0;
-> unsigned long lastDecrement = 0;
-> 
-10c20,21
-< void initEncoder();
----
-> void enc();
-> void updateEncoder();
-13c24
-< }
----
-> };
+--- ../Tesla_Coil_MIDI_Synth/Knob.h	2024-11-09 18:51:12
++++ build/patched/Knob.h	2024-11-09 20:34:14
+@@ -5,6 +5,7 @@
+ #define BUTTON_DEBOUNCE 100 // ms
+ #define ENCODER_ACCELERATION 60 // ms per decrement
+ 
++class Coil;
+ class Synth;
+ class LCD;
+ class MIDI;
+@@ -12,12 +13,13 @@
+ 
+ class Knob {
+ public:
+-  Knob(Synth &synth, LCD &lcd, MIDI &midi, Audio &audio);
++  Knob(Coil &coil, Synth &synth, LCD &lcd, MIDI &midi, Audio &audio);
+   
+   void init();
+   void update();
+   
+ private:
++  Coil &coil;
+   Synth &synth;
+   LCD &lcd;
+   MIDI &midi;
+@@ -30,8 +32,9 @@
+   void pollButton();
+   void updateEncoder();
+   
++public:
+   // Encoder tracking and acceleration
+-  static int8_t movement;
++  int8_t movement;
+   static int32_t recentMovement;
+   static unsigned long lastDecrement;
+   
+@@ -41,6 +44,6 @@
+   
+   // Static callback function
+   // plus cursed static reference to the latest instantiation of this class for the static function to use
+-  static void enc();
++  void enc();
+   static Knob *knob;
+ };

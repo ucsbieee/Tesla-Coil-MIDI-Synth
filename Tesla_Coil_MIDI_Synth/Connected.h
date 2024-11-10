@@ -2,11 +2,19 @@
 
 #include <inttypes.h>
 
-namespace Connected {
+class Synth;
+class Audio;
 
-extern uint16_t lastFrameNumber;
-extern int8_t missedFrameCount;
-
-void checkConnected();
-
-}
+class Connected {
+public:
+  Connected(Synth &synth, Audio &audio);
+  
+  void checkConnected();
+  
+private:
+  Synth &synth;
+  Audio &audio;
+  
+  static uint16_t lastFrameNumber;
+  static int8_t missedFrameCount;
+};
