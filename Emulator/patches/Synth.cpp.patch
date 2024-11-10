@@ -1,5 +1,5 @@
---- ../Tesla_Coil_MIDI_Synth/Synth.cpp	2024-11-09 18:51:12
-+++ build/patched/Synth.cpp	2024-11-09 20:34:06
+--- ../Tesla_Coil_MIDI_Synth/Synth.cpp	2024-11-09 20:52:58
++++ build/patched/Synth.cpp	2024-11-10 05:05:25
 @@ -1,14 +1,17 @@
 +#include <cmath>
 +#define PI M_PI
@@ -54,7 +54,7 @@
 -      vc.channel->TC_CV = temp; // put counter value back
 -    }
 -    vc.channel->TC_RB = pulseWidth; // update pulse width
--    if(pulseWidth < MIN_WIDTH) {
+-    if(pulseWidth < MIN_WIDTH_CYC) {
 -      vc.channel->TC_CMR &= ~TC_CMR_BCPC_SET; // disable output if pulse width is too small
 -      vc.channel->TC_CCR = TC_CCR_SWTRG; // re-trigger the timer
 -    } else vc.channel->TC_CMR |= TC_CMR_BCPC_SET;
@@ -65,7 +65,7 @@
 -      vc.channel->TC_CV = temp;
 -    }
 -    vc.channel->TC_RA = pulseWidth;
--    if(pulseWidth < MIN_WIDTH) {
+-    if(pulseWidth < MIN_WIDTH_CYC) {
 -      vc.channel->TC_CMR &= ~TC_CMR_ACPC_SET;
 -      vc.channel->TC_CCR = TC_CCR_SWTRG;
 -    } else vc.channel->TC_CMR |= TC_CMR_ACPC_SET;

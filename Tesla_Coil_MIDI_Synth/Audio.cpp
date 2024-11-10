@@ -2,16 +2,32 @@
 #include "Synth.h"
 #include "USBAudio.h"
 
+#include "AudioMode.h"
+
 #include <Arduino.h>
 
-const char *Audio::audioModeNames[] = {
-  "Off",
-  "Binary",
-  "Processed",
-  "PWM"
-};
-
-Audio::Audio(Synth &synth): synth(synth) {}
+// Construct list of audio mode processor objects
+Audio::Audio():
+processors{
+  &AM_OFF_o,
+  &AM_PREDICTIVE_o,
+  &AM_PULSE_ENERGY_o,
+  &AM_CLAMPED_BINARY_o,
+  &AM_BINARY_o,
+  &AM_BINARY_DDT_o,
+  &AM_PWM_o,
+  &AM_PWM_DDT_o
+},
+pulseWidthMax(DEFAULT_VOL * ((uint32_t)(NOM_SAMPLE_RATE*MAX_WIDTH)) / 0x100),
+pwmWidthMax(DEFAULT_VOL * (F_CPU/NOM_SAMPLE_RATE) / 0x100),
+AM_OFF_o(*this),
+AM_PREDICTIVE_o(*this),
+AM_PULSE_ENERGY_o(*this),
+AM_CLAMPED_BINARY_o(*this),
+AM_BINARY_o(*this),
+AM_BINARY_DDT_o(*this),
+AM_PWM_o(*this),
+AM_PWM_DDT_o(*this) {}
 
 // Return amount of filled buffers in ring buffer of buffers
 uint8_t Audio::bufsFilled() {
@@ -87,8 +103,8 @@ void Audio::start() {
   readBuffer = 0;
   writeBuffer = 0;
   purgeBufs = false;
-  lastSample = 0;
-  baseline = 0;
+
+  resetProcessing();
 
   setDMABuffer();
 
@@ -164,41 +180,17 @@ void Audio::process() {
   }
 }
 
+// Reset processing state variables
+void Audio::resetProcessing() {
+  for(auto *p:processors)
+    p->reset();
+}
+
+// Handle a single sample
 uint16_t Audio::processSample(int32_t in) {
-  uint16_t ret;
-
-  switch(audioMode) {
-    // Hope you like square waves
-    case AM_BINARY:
-      ret = in > 0 ? 0xFFFF : 0;
-      break;
-
-    // TODO
-    case AM_PROCESSED:
-      ret = 0;
-      break;
-
-    // Duty cycle proportional to input
-    case AM_PWM:
-      // Clamp minimum input to zero
-      if(in - baseline < 0)
-        baseline = in;
-
-      // Subtract away baseline
-      in -= baseline;
-
-      // Decay baseline to zero
-      baseline = baseline*253/256;
-
-      // Apply volume and make proportional to max PWM counter value
-      ret = in * synth.vol / 0x100 * (F_CPU/NOM_SAMPLE_RATE) / 0x10000;
-      break;
-
-    default:
-      ret = 0;
-      break;
-  }
-
-  lastSample = in;
-  return ret;
+  in = (in - (audioNoiseGate << 7)) * audioGain / 0x40;
+  if(in > 0x7FFF) in = 0x7FFF;
+  else if(in < -0x7FFF) in = -0x7FFF;
+  
+  return processors[audioMode]->processSample(in);
 }

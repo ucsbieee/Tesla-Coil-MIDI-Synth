@@ -1,5 +1,14 @@
 #pragma once
 
+#include "AudioMode.h"
+#include "AudioModePredictive.h"
+#include "AudioModeBinaryDDT.h"
+#include "AudioModePWMDDT.h"
+#include "AudioModePulseEnergy.h"
+#include "AudioModeClampedBinary.h"
+#include "AudioModeBinary.h"
+#include "AudioModePWM.h"
+
 #include <inttypes.h>
 
 // Buffer sizes
@@ -26,30 +35,45 @@ class Synth;
 
 class Audio {
 public:
-  Audio(Synth &synth);
+  Audio();
   
-  enum AudioMode {
+  enum AudioMode_e {
     AM_OFF,
+    AM_PREDICTIVE,
+    AM_PULSE_ENERGY,
+    AM_CLAMPED_BINARY,
     AM_BINARY,
-    AM_PROCESSED,
+    AM_BINARY_DDT,
     AM_PWM,
-    AM_INVALID
+    AM_PWM_DDT,
+    AM_END
   };
   
-  AudioMode audioMode = AM_OFF;
-  static const char *audioModeNames[AM_INVALID];
+  AudioMode_e audioMode = AM_OFF;
+
+  // List of processing algorithm objects
+  AudioMode *processors[AM_END];
+  
+  // Adjustable audio controls applied to all samples
+  uint8_t audioGain = 64; // Max 400%
+  uint8_t audioNoiseGate = 13;
+  
+  // Equivalent to synth.vol, but scaled to the audio sample rate
+  uint16_t pulseWidthMax;
+
+  // Equivalent to synth.vol, but scaled to the PWM pulse width
+  uint16_t pwmWidthMax;
   
   void init();
   void start();
   void stop();
   void process();
+  void resetProcessing();
   
   // Called by ISR in main file
   void setDMABuffer();
 
 private:
-  Synth &synth;
-  
   struct Buffer {
     uint16_t len;
     uint16_t buf[BUF_SIZE];
@@ -74,11 +98,15 @@ private:
   // Last time we got new audio data
   unsigned long lastAudioTimestamp;
   
-  // Last processed sample (used for AM_PROCESSED mode)
-  int32_t lastSample;
-  
-  // Baseline (used for AM_PWM mode)
-  int32_t baseline;
+  // Processing algorithm objects
+  AudioMode              AM_OFF_o;
+  AudioModePredictive    AM_PREDICTIVE_o;
+  AudioModePulseEnergy   AM_PULSE_ENERGY_o;
+  AudioModeClampedBinary AM_CLAMPED_BINARY_o;
+  AudioModeBinary        AM_BINARY_o;
+  AudioModeBinaryDDT     AM_BINARY_DDT_o;
+  AudioModePWM           AM_PWM_o;
+  AudioModePWMDDT        AM_PWM_DDT_o;
   
   // Return amount of filled buffers in ring buffer of buffers
   uint8_t bufsFilled();

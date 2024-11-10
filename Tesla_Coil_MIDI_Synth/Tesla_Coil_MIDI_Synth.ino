@@ -34,7 +34,7 @@ Voices    voices;
 Synth     synth (voices,             midi       );
 LCD       lcd   (        synth,      midi, audio);
 MIDI      midi  (voices, synth, lcd             );
-Audio     audio (        synth                  );
+Audio     audio;
 Knob      knob  (        synth, lcd, midi, audio);
 Connected conn  (        synth,            audio);
 

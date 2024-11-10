@@ -4,7 +4,7 @@
 #include "Coil.h"
 #include "AudioEngine.h"
 
-Coil::Coil(const char *name, uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), _millis(0), lc(this, name), midi(*this, voices, synth, lcd), synth(*this, voices, midi), audio(synth), knob(*this, synth, lcd, midi, audio), lcd(*this, synth, midi, audio), voicesUpdating(0) {
+Coil::Coil(const char *name, uint8_t MIDIbaseChannel, AudioOutputMode aoMode): aoMode(aoMode), _millis(0), lc(this, name), midi(*this, voices, synth, lcd), synth(*this, voices, midi), audio(), knob(*this, synth, lcd, midi, audio), lcd(*this, synth, midi, audio), voicesUpdating(0) {
 	midi.MIDIbaseChannel = MIDIbaseChannel;
 	memset(oscillators, 0, sizeof(oscillators));
 	lcd.init();

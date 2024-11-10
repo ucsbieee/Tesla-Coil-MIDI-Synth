@@ -1,5 +1,5 @@
 --- ../Tesla_Coil_MIDI_Synth/MIDI.h	2024-11-09 18:31:35
-+++ build/patched/MIDI.h	2024-11-09 20:34:14
++++ build/patched/MIDI.h	2024-11-10 05:04:48
 @@ -8,13 +8,14 @@
  // Uncomment to save MIDI base channel to flash
  // #define SAVE_BASE_MIDI

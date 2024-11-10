@@ -190,14 +190,14 @@ void Synth::update() {
       // Make duty cycle correspond to envelope
       uint16_t env = voice.pulseWidth;
 #ifdef ABSOLUTE_PULSE_WIDTH
-      uint64_t maxWidth = MAX_WIDTH*3/4*vol/256;
+      uint64_t maxWidth = MAX_WIDTH_CYC*3/4*vol/256;
 #else
       uint64_t maxWidth = voice.period*3/4*vol/256; // Limit to 75% duty cycle
-      if(maxWidth > MAX_WIDTH) maxWidth = MAX_WIDTH;
+      if(maxWidth > MAX_WIDTH_CYC) maxWidth = MAX_WIDTH_CYC;
 #endif
       voice.pulseWidth = maxWidth*env*duck/(256*256);
 
-      if((int32_t)voice.period-(int32_t)voice.pulseWidth < MIN_OFF_TIME) voice.pulseWidth = voice.period - MIN_OFF_TIME;
+      if((int32_t)voice.period-(int32_t)voice.pulseWidth < MIN_OFF_TIME_CYC) voice.pulseWidth = voice.period - MIN_OFF_TIME_CYC;
 
       // Update timer
       updatePeriod(x, voice.period);
@@ -229,7 +229,7 @@ void Synth::updateWidth(uint8_t chan, uint32_t pulseWidth) {
       vc.channel->TC_CV = temp; // put counter value back
     }
     vc.channel->TC_RB = pulseWidth; // update pulse width
-    if(pulseWidth < MIN_WIDTH) {
+    if(pulseWidth < MIN_WIDTH_CYC) {
       vc.channel->TC_CMR &= ~TC_CMR_BCPC_SET; // disable output if pulse width is too small
       vc.channel->TC_CCR = TC_CCR_SWTRG; // re-trigger the timer
     } else vc.channel->TC_CMR |= TC_CMR_BCPC_SET;
@@ -240,7 +240,7 @@ void Synth::updateWidth(uint8_t chan, uint32_t pulseWidth) {
       vc.channel->TC_CV = temp;
     }
     vc.channel->TC_RA = pulseWidth;
-    if(pulseWidth < MIN_WIDTH) {
+    if(pulseWidth < MIN_WIDTH_CYC) {
       vc.channel->TC_CMR &= ~TC_CMR_ACPC_SET;
       vc.channel->TC_CCR = TC_CCR_SWTRG;
     } else vc.channel->TC_CMR |= TC_CMR_ACPC_SET;

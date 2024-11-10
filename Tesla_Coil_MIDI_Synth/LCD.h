@@ -20,7 +20,7 @@ class Audio;
 class LCD {
 public:
   LCD(Synth &synth, MIDI &midi, Audio &audio);
-
+  
   enum LCDScreen {
     SCREEN_PULSE_WIDTH,
     SCREEN_A,
@@ -38,6 +38,8 @@ public:
     SCREEN_MIDI_MAX_NOTE,
     SCREEN_MIDI_BASE,
     SCREEN_AUDIO_MODE,
+    SCREEN_AUDIO_GAIN,
+    SCREEN_AUDIO_NOISE_GATE,
     SCREEN_END
   };
   
@@ -101,6 +103,7 @@ private:
   // Functions to display value
   static uint16_t displayTypeUINT32(void *data);
   static uint16_t displayTypeUINT8scaled(void *data);
+  static uint16_t displayTypeUINT8scaled4x(void *data);
   static uint16_t displayTypeMIDIchannel(void *data);
   static uint16_t displayTypeUINT32Hz(void *data);
 };

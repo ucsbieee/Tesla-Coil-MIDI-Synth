@@ -149,6 +149,22 @@ LCD::LCD(Synth &synth, MIDI &midi, Audio &audio): screens{
     NULL,
     NULL,
     0
+  },
+  { // SCREEN_AUDIO_GAIN
+    "Audio Gain",
+    "%",
+    &displayTypeUINT8scaled4x,
+    &audio.audioGain,
+    NULL,
+    0
+  },
+  { // SCREEN_AUDIO_NOISE_GATE
+    "Noise Gate",
+    "%",
+    &displayTypeUINT8scaled,
+    &audio.audioNoiseGate,
+    NULL,
+    0
   }
 }, synth(synth), midi(midi), audio(audio), lcd(19, 18, 17, 16, 23, 24), displayedValue(synth.vol) {}
 
@@ -252,7 +268,7 @@ void LCD::update() {
       displayedValue = (uint16_t)audio.audioMode;
       if(LCDstate != lastLCDstate || displayedValue != lastDisplayedValue || editing != lastEditing) {
         char buf[17];
-        snprintf(buf, 17, "%c%s                ", editing ? '>' : ' ', Audio::audioModeNames[displayedValue]);
+        snprintf(buf, 17, "%c%s                ", editing ? '>' : ' ', audio.processors[audio.audioMode]->name());
         lcd.setCursor(0, 1);
         lcd.print(buf);
       }
@@ -320,6 +336,10 @@ uint16_t LCD::displayTypeUINT32(void *data) {
 
 uint16_t LCD::displayTypeUINT8scaled(void *data) {
   return ((uint16_t)*(uint8_t*)data)*100/255;
+}
+
+uint16_t LCD::displayTypeUINT8scaled4x(void *data) {
+  return ((uint16_t)*(uint8_t*)data)*400/255;
 }
 
 uint16_t LCD::displayTypeMIDIchannel(void *data) {

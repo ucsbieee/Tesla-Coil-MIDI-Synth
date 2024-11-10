@@ -5,8 +5,42 @@ BIN=tcsynth
 MCU=../Tesla_Coil_MIDI_Synth
 
 # Files to compile and patch if necessary
-SOURCES=patched/MIDI.cpp patched/Synth.cpp patched/Voice.cpp patched/Audio.cpp patched/LCD.cpp patched/Knob.cpp Drum.cpp BarChars.cpp Coil.cpp AudioEngine.cpp Convolution.cpp LiquidCrystal.cpp ir.s LCDFont.s
-HEADERS=patched/MIDI.h patched/Synth.h patched/Voice.h patched/Audio.h patched/LCD.h patched/Knob.h Coil.h AudioEngine.h Convolution.h LiquidCrystal.h RingBuffer.h
+SOURCES=\
+	patched/MIDI.cpp \
+	patched/Synth.cpp \
+	patched/Voice.cpp \
+	patched/Audio.cpp \
+	patched/LCD.cpp \
+	patched/Knob.cpp \
+	AudioMode.cpp \
+	AudioModeBinary.cpp \
+	AudioModeBinaryDDT.cpp \
+	AudioModeClampedBinary.cpp \
+	AudioModePWM.cpp \
+	AudioModePWMDDT.cpp \
+	AudioModePredictive.cpp \
+	AudioModePulseEnergy.cpp \
+	Drum.cpp \
+	BarChars.cpp \
+	Coil.cpp \
+	AudioEngine.cpp \
+	Convolution.cpp \
+	LiquidCrystal.cpp \
+	ir.s \
+	LCDFont.s
+
+HEADERS=\
+	patched/MIDI.h \
+	patched/Synth.h \
+	patched/Voice.h \
+	patched/Audio.h \
+	patched/LCD.h \
+	patched/Knob.h \
+	Coil.h \
+	AudioEngine.h \
+	Convolution.h \
+	LiquidCrystal.h \
+	RingBuffer.h
 
 # Get portaudio flags from pkg-config
 PORTAUDIO_CFLAGS:=$(shell pkg-config --cflags portaudiocpp)

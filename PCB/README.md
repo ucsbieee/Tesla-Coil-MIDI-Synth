@@ -1,5 +1,9 @@
 # PCB
 
+## Audio
+
+We had the idea of using sampled audio output after the V2 boards were made. Unfortunately, the (unused) pins that have the necessary DMA capability are not broken out on the board. So, to get audio capability, you will need to solder a very thin wire (~34AWG) underneath the D10 pad on the microcontroller and run it to EXT_IN on the expansion header. Hope you're comfortable with BGA soldering :)
+
 ## Hacking
 There are twelve extra pins on the board marked "Expansion," and they're there so you can add extra inputs or whatever you want to the board. Three are power (5V, 3.3V, GND), and seven go to digital/ADC pins on the MCU. The Arduino board definition is based off of the DUE, so take a look at the [DUE schematic](https://www.arduino.cc/en/uploads/Main/arduino-Due-schematic.pdf) or [variant.cpp](https://github.com/ucsbieee/ArduinoCore-SAM3A4C/blob/master/variants/arduino_due_x/variant.cpp) to see which Arduino pins they map to. These could be good for adding physical controls/music input of some kind.
 

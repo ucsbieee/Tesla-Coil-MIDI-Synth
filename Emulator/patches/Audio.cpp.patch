@@ -1,18 +1,20 @@
---- ../Tesla_Coil_MIDI_Synth/Audio.cpp	2024-11-09 18:51:12
-+++ build/patched/Audio.cpp	2024-11-09 19:54:07
-@@ -1,9 +1,6 @@
+--- ../Tesla_Coil_MIDI_Synth/Audio.cpp	2024-11-10 05:01:49
++++ build/patched/Audio.cpp	2024-11-10 05:02:55
+@@ -1,11 +1,8 @@
  #include "Audio.h"
  #include "Synth.h"
 -#include "USBAudio.h"
  
+ #include "AudioMode.h"
+ 
 -#include <Arduino.h>
 -
- const char *Audio::audioModeNames[] = {
-   "Off",
-   "Binary",
-@@ -13,157 +10,6 @@
- 
- Audio::Audio(Synth &synth): synth(synth) {}
+ // Construct list of audio mode processor objects
+ Audio::Audio():
+ processors{
+@@ -29,163 +26,6 @@
+ AM_PWM_o(*this),
+ AM_PWM_DDT_o(*this) {}
  
 -// Return amount of filled buffers in ring buffer of buffers
 -uint8_t Audio::bufsFilled() {
@@ -88,8 +90,8 @@
 -  readBuffer = 0;
 -  writeBuffer = 0;
 -  purgeBufs = false;
--  lastSample = 0;
--  baseline = 0;
+-
+-  resetProcessing();
 -
 -  setDMABuffer();
 -
@@ -165,6 +167,12 @@
 -  }
 -}
 -
+-// Reset processing state variables
+-void Audio::resetProcessing() {
+-  for(auto *p:processors)
+-    p->reset();
+-}
+-
+ // Handle a single sample
  uint16_t Audio::processSample(int32_t in) {
-   uint16_t ret;
- 
+   in = (in - (audioNoiseGate << 7)) * audioGain / 0x40;

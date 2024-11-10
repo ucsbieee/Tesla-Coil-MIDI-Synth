@@ -73,6 +73,8 @@ void Knob::enc() {
             if(change < 0) change = 0;
             else if(change > 255) change = 255;
             k.synth.vol = change;
+            k.audio.pulseWidthMax = change * ((uint32_t)(NOM_SAMPLE_RATE*MAX_WIDTH)) / 0x100;
+            k.audio.pwmWidthMax = change * (F_CPU/NOM_SAMPLE_RATE) / 0x100;
             break;
           case LCD::SCREEN_MIDI_MIN_NOTE:
             change += (int32_t)k.midi.minNote;
@@ -93,9 +95,17 @@ void Knob::enc() {
             k.midi.MIDIbaseChannel = change;
           case LCD::SCREEN_AUDIO_MODE:
             change += (int32_t)k.audio.audioMode;
-            if(change < 0) change = Audio::AM_INVALID-1;
-            else if(change >= Audio::AM_INVALID) change = Audio::AM_OFF;
-            k.audio.audioMode = (Audio::AudioMode)change;
+            if(change < 0) change = Audio::AM_END-1;
+            else if(change >= Audio::AM_END) change = Audio::AM_OFF;
+            k.audio.audioMode = (Audio::AudioMode_e)change;
+            k.audio.processors[change]->reset();
+          case LCD::SCREEN_AUDIO_GAIN:
+          case LCD::SCREEN_AUDIO_NOISE_GATE:
+            change += *(uint8_t*)screen.dataValue;
+            if(change > 0xFF) change = 0xFF;
+            else if(change < 0) change = 0;
+            *(uint8_t*)screen.dataValue = change;
+            break;
           default:
             break;
         }

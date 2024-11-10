@@ -1,6 +1,6 @@
---- ../Tesla_Coil_MIDI_Synth/Synth.h	2024-11-09 18:51:12
-+++ build/patched/Synth.h	2024-11-09 20:34:14
-@@ -18,12 +18,13 @@
+--- ../Tesla_Coil_MIDI_Synth/Synth.h	2024-11-09 23:20:17
++++ build/patched/Synth.h	2024-11-10 05:04:48
+@@ -25,12 +25,13 @@
  
  #define LUTSIZE 256
  
@@ -13,9 +13,9 @@
 -  Synth(Voices &voices, MIDI &midi);
 +  Synth(Coil &coil, Voices &voices, MIDI &midi);
    
-   uint8_t vol = 64;
+   uint8_t vol = DEFAULT_VOL;
    
-@@ -32,6 +33,7 @@
+@@ -39,6 +40,7 @@
    void update();
    
  private:

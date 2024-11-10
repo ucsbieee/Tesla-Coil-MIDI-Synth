@@ -1,6 +1,6 @@
---- ../Tesla_Coil_MIDI_Synth/Audio.h	2024-11-09 18:51:12
-+++ build/patched/Audio.h	2024-11-09 20:34:14
-@@ -83,6 +83,7 @@
+--- ../Tesla_Coil_MIDI_Synth/Audio.h	2024-11-10 02:45:53
++++ build/patched/Audio.h	2024-11-10 05:04:48
+@@ -111,6 +111,7 @@
    // Return amount of filled buffers in ring buffer of buffers
    uint8_t bufsFilled();
  

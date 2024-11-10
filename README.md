@@ -1,6 +1,6 @@
 # UCSB IEEE Tesla Coil MIDI Synthesizer
 
-This is the firmware and design files for a device to convert MIDI data to pulses to drive a Tesla Coil. It enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file.
+This is the firmware and design files for a device to convert MIDI data to pulses to drive a Tesla coil. It enumerates as a USB MIDI device and can be sent live play data or a recorded MIDI file. It also enumerates as a USB audio device and can be sent PCM audio for greater control or for live instrument use.
 
 ![photo](MIDI_Interrupter.jpg)
 
@@ -37,9 +37,18 @@ Standard MIDI pitch bend and aftertouch messages apply to all channels.
  * ADSR (116, 117, 118, 119)
  * Arpeggio rate (14)
 
-### Drum samples
+### Drum Samples
  * Kick (36/C2)
  * Snare (40/E2)
  * Clap (39/D#2)
  * Tom (48/C3)
  * Closed hi-hat (42/F#2)
+
+## Audio Processing Modes
+ * **Predictive**: Predict how much energy will be in a pulse based on the filtered derivative near zero crossing.
+ * **Pulse Energy**: Output a pulse after a delay (~5ms) with width proportional to the area of input pulses above the noise gate level. Pulse width clamped to maximum setting.
+ * **Clamped Binary**: Output on when audio exceeds the noise gate level. Pulse width clamped to maximum setting.
+ * **Binary**: Output on when audio exceeds the noise gate level.
+ * **Binary DDT**: Output on when the derivative of the audio exceeds a certain threshold. Pulse width clamped to maximum setting.
+ * **PWM**: Output 48kHz PWM with pulse width proportional to the sample value. Audio baseline level subtracted away.
+ * **PWM DDT**: Output 48kHz PWM with pulse width proportional to the derivative of the audio.
