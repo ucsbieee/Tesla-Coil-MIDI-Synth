@@ -1,5 +1,5 @@
---- ../Tesla_Coil_MIDI_Synth/Knob.h	2024-11-09 18:51:12
-+++ build/patched/Knob.h	2024-11-10 05:04:48
+--- ../Tesla_Coil_MIDI_Synth/Knob.h	2024-11-10 14:40:13
++++ build/patched/Knob.h	2024-11-10 14:49:03
 @@ -5,6 +5,7 @@
  #define BUTTON_DEBOUNCE 100 // ms
  #define ENCODER_ACCELERATION 60 // ms per decrement
@@ -23,9 +23,9 @@
    Synth &synth;
    LCD &lcd;
    MIDI &midi;
-@@ -30,8 +32,9 @@
-   void pollButton();
-   void updateEncoder();
+@@ -31,8 +33,9 @@
+   void updateEncoderAcceleration();
+   void applyChange();
    
 +public:
    // Encoder tracking and acceleration
@@ -33,12 +33,11 @@
 +  int8_t movement;
    static int32_t recentMovement;
    static unsigned long lastDecrement;
+   static int32_t globalPos;
+@@ -43,5 +46,5 @@
+   static uint8_t encDir, encLutInd;
    
-@@ -41,6 +44,6 @@
-   
-   // Static callback function
-   // plus cursed static reference to the latest instantiation of this class for the static function to use
+   // Static interrupt handler
 -  static void enc();
 +  void enc();
-   static Knob *knob;
  };

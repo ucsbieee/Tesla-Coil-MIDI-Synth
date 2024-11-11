@@ -1,5 +1,5 @@
---- ../Tesla_Coil_MIDI_Synth/Knob.cpp	2024-11-09 18:51:12
-+++ build/patched/Knob.cpp	2024-11-09 19:53:22
+--- ../Tesla_Coil_MIDI_Synth/Knob.cpp	2024-11-10 14:43:03
++++ build/patched/Knob.cpp	2024-11-10 14:50:00
 @@ -1,13 +1,11 @@
 +#include "Coil.h"
  #include "Knob.h"
@@ -14,15 +14,13 @@
 -int8_t Knob::movement = 0;
  int32_t Knob::recentMovement = 0;
  unsigned long Knob::lastDecrement = 0;
+ int32_t Knob::globalPos = 0;
+@@ -16,19 +14,13 @@
+ const int8_t Knob::encLut[32] = {0,-1,+1,+2,+1,0,+2,-1,-1,+2,0,+1,+2,+1,-1,0,0,-1,+1,-2,+1,0,-2,-1,-1,-2,0,+1,-2,+1,-1,0};
+ uint8_t Knob::encDir = 0, Knob::encLutInd = 0;
  
-@@ -19,21 +17,15 @@
- // (class is for sematic purposes only; instantiating multiple is pointless)
- Knob *Knob::knob;
- 
--Knob::Knob(Synth &synth, LCD &lcd, MIDI &midi, Audio &audio): synth(synth), lcd(lcd), midi(midi), audio(audio) {
-+Knob::Knob(Coil &coil, Synth &synth, LCD &lcd, MIDI &midi, Audio &audio): coil(coil), synth(synth), lcd(lcd), midi(midi), audio(audio) {
-   knob = this;
- }
+-Knob::Knob(Synth &synth, LCD &lcd, MIDI &midi, Audio &audio): synth(synth), lcd(lcd), midi(midi), audio(audio) {}
++Knob::Knob(Coil &coil, Synth &synth, LCD &lcd, MIDI &midi, Audio &audio): coil(coil), synth(synth), lcd(lcd), midi(midi), audio(audio) {}
  
  void Knob::pollButton() {
 -  unsigned long ms = millis();
@@ -33,19 +31,16 @@
 -  }
  }
  
- void Knob::updateEncoder() {
+ void Knob::updateEncoderAcceleration() {
 -  unsigned long ms = millis();
 +  unsigned long ms = coil.millis();
    while(ms - lastDecrement > ENCODER_ACCELERATION) {
      lastDecrement += ENCODER_ACCELERATION;
      if(recentMovement > 0) recentMovement--;
-@@ -43,13 +35,8 @@
+@@ -38,11 +30,6 @@
  
- // Called when encoder moves
+ // Called when encoder moves (interrupt)
  void Knob::enc() {
--  Knob &k = *knob;
-+  Knob &k = *this;
-   
 -  encLutInd |= (!digitalRead(64))<<1 | !digitalRead(65); // Add current state to index
 -  movement += encLut[encLutInd]; // Increment position
 -  if(encLut[encLutInd]) encDir = (encLut[encLutInd] > 0) ? 1:0; // Update instantaneous direction
@@ -54,9 +49,9 @@
    if(abs(movement) >= 4) { // Four pulses per tick
      recentMovement += movement/4;
      movement = 0;
-@@ -115,11 +102,3 @@
-   updateEncoder();
+@@ -124,11 +111,3 @@
    pollButton();
+   applyChange();
  }
 -
 -void Knob::init() {

@@ -28,19 +28,20 @@ private:
   bool lastButtonState = true;
   
   void pollButton();
-  void updateEncoder();
+  void updateEncoderAcceleration();
+  void applyChange();
   
   // Encoder tracking and acceleration
   static int8_t movement;
   static int32_t recentMovement;
   static unsigned long lastDecrement;
+  static int32_t globalPos;
+  int32_t localPos;
   
   // Encoder LUT
   static const int8_t encLut[32];
   static uint8_t encDir, encLutInd;
   
-  // Static callback function
-  // plus cursed static reference to the latest instantiation of this class for the static function to use
+  // Static interrupt handler
   static void enc();
-  static Knob *knob;
 };
