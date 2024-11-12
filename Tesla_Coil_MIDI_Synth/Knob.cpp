@@ -93,12 +93,14 @@ void Knob::applyChange() {
             if(change < 0) change = 0;
             else if(change > 15) change = 15;
             midi.MIDIbaseChannel = change;
+            break;
           case LCD::SCREEN_AUDIO_MODE:
             change += (int32_t)audio.audioMode;
             if(change < 0) change = Audio::AM_END-1;
             else if(change >= Audio::AM_END) change = Audio::AM_OFF;
             audio.audioMode = (Audio::AudioMode_e)change;
             audio.processors[change]->reset();
+            break;
           case LCD::SCREEN_AUDIO_GAIN:
           case LCD::SCREEN_AUDIO_NOISE_GATE:
             change += *(uint8_t*)screen.dataValue;
