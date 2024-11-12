@@ -154,4 +154,7 @@ private:
   
   // Buffer data coming in through hardware MIDI
   unsigned char hwMIDIbuf[3], hwMIDIbufInd = 0;
+
+  // Expected length of a MIDI message based on the first byte
+  static uint8_t expectedLength(uint8_t command);
 };

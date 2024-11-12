@@ -1,5 +1,5 @@
---- ../Tesla_Coil_MIDI_Synth/MIDI.cpp	2024-11-09 18:51:12
-+++ build/patched/MIDI.cpp	2024-11-09 19:53:17
+--- ../Tesla_Coil_MIDI_Synth/MIDI.cpp	2024-11-11 18:33:19
++++ build/patched/MIDI.cpp	2024-11-11 18:43:39
 @@ -1,13 +1,12 @@
 +#include "Coil.h"
  #include "MIDI.h"
@@ -36,14 +36,14 @@
              voice.arpNoteEndTimestamps[y] = ms+ARPEGGIO_LINGER;
 @@ -191,7 +190,7 @@
      if(voice.midiChannel == channel) {
-       bool thisVoice = (voice.midiNote == note);
+       bool thisVoice = ((voice.midiNote == note) || (note == 0xFF));
        if(!thisVoice && voice.midiChannel == CHANNEL_ARP) { // Check if this command is for one of the arp notes
 -        unsigned long ms = millis();
 +        unsigned long ms = coil.millis();
          for(int y=0; y<MAX_ARP_NOTES; y++)
            if(voice.arpNoteEndTimestamps[y] > ms && voice.arpNotes[y] == note) {
              thisVoice = true;
-@@ -311,13 +310,6 @@
+@@ -311,14 +310,6 @@
    SerialUSB.println(byte3, HEX);
  #endif
  
@@ -51,13 +51,14 @@
 -  if(Serial.availableForWrite() >= 3) { // Rush E protection
 -    Serial.write(byte1);
 -    Serial.write(byte2);
--    Serial.write(byte3);
+-    if(expectedLength(byte1) > 2)
+-      Serial.write(byte3);
 -  }
 -
    // Ignore MIDI channels that we don't respond to
    int16_t offsetChannel = (int16_t)channel - (int16_t)MIDIbaseChannel;
    if(offsetChannel < CHANNEL_CLEAN || offsetChannel >= CHANNEL_INVALID) {
-@@ -355,23 +347,4 @@
+@@ -360,34 +351,8 @@
  #ifdef PRINTMIDI
    SerialUSB.begin(115200);
  #endif
@@ -65,7 +66,7 @@
 -  // Physical MIDI interface
 -  Serial.begin(31250);
  }
--
+ 
 -void MIDI::process() {
 -  static midiEventPacket_t rx;
 -  rx = MidiUSB.read();
@@ -73,11 +74,22 @@
 -  
 -  while(Serial.available()) {
 -    unsigned char d = Serial.read();
+-    
 -    if(d & 0x80) hwMIDIbufInd = 0;
 -    hwMIDIbuf[hwMIDIbufInd++] = d;
--    if(hwMIDIbufInd >= 3) {
+-    
+-    if(hwMIDIbufInd >= expectedLength(hwMIDIbuf[0])) {
 -      hwMIDIbufInd = 0;
--      handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
+-
+-      // Make sure the first byte is a valid command byte
+-      if(hwMIDIbuf[0] & 0x80) {
+-        handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
+-        MidiUSB.sendMIDI({(uint8_t)(hwMIDIbuf[0] >> 4), hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]});
+-      }
 -    }
 -  }
 -}
+-
+ // Expected length of a MIDI message based on the first byte
+ uint8_t MIDI::expectedLength(uint8_t command) {
+   static const uint8_t midiLengths[8] = {3, 3, 3, 3, 2, 2, 3, 3};

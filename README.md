@@ -44,6 +44,9 @@ Standard MIDI pitch bend and aftertouch messages apply to all channels.
  * Tom (48/C3)
  * Closed hi-hat (42/F#2)
 
+### Physical MIDI Ports
+All MIDI messages that come in over USB or the MIDI IN port are sent out the MIDI OUT port. Additionally, all messages that come in over the MIDI IN port are sent back to the computer over USB. This allows daisy-chaining multiple controllers using the physical MIDI ports, and allows recording any inputs from the physical MIDI IN port to the computer. Be careful not to create infinite MIDI loops in your DAW because of these behaviors.
+
 ## Audio Processing Modes
  * **Predictive**: Predict how much energy will be in a pulse based on the filtered derivative near zero crossing.
  * **Pulse Energy**: Output a pulse after a delay (~5ms) with width proportional to the area of the input pulse above the noise gate level. Pulse width clamped to maximum setting.

@@ -189,7 +189,7 @@ void MIDI::aftertouch(uint8_t channel, uint8_t note, uint8_t vel) {
   for(unsigned int x=0; x<NVOICES; x++) {
     auto &voice = voices[x];
     if(voice.midiChannel == channel) {
-      bool thisVoice = (voice.midiNote == note);
+      bool thisVoice = ((voice.midiNote == note) || (note == 0xFF));
       if(!thisVoice && voice.midiChannel == CHANNEL_ARP) { // Check if this command is for one of the arp notes
         unsigned long ms = millis();
         for(int y=0; y<MAX_ARP_NOTES; y++)
@@ -315,7 +315,8 @@ void MIDI::handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char by
   if(Serial.availableForWrite() >= 3) { // Rush E protection
     Serial.write(byte1);
     Serial.write(byte2);
-    Serial.write(byte3);
+    if(expectedLength(byte1) > 2)
+      Serial.write(byte3);
   }
 
   // Ignore MIDI channels that we don't respond to
@@ -339,6 +340,10 @@ void MIDI::handleMIDI(unsigned char byte1, unsigned char byte2, unsigned char by
       
     case 0xA:
       aftertouch(channel, byte2, byte3);
+      break;
+
+    case 0xD:
+      aftertouch(channel, 0xFF, byte2);
       break;
 
     case 0xB:
@@ -367,11 +372,24 @@ void MIDI::process() {
   
   while(Serial.available()) {
     unsigned char d = Serial.read();
+    
     if(d & 0x80) hwMIDIbufInd = 0;
     hwMIDIbuf[hwMIDIbufInd++] = d;
-    if(hwMIDIbufInd >= 3) {
+    
+    if(hwMIDIbufInd >= expectedLength(hwMIDIbuf[0])) {
       hwMIDIbufInd = 0;
-      handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
+
+      // Make sure the first byte is a valid command byte
+      if(hwMIDIbuf[0] & 0x80) {
+        handleMIDI(hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]);
+        MidiUSB.sendMIDI({(uint8_t)(hwMIDIbuf[0] >> 4), hwMIDIbuf[0], hwMIDIbuf[1], hwMIDIbuf[2]});
+      }
     }
   }
+}
+
+// Expected length of a MIDI message based on the first byte
+uint8_t MIDI::expectedLength(uint8_t command) {
+  static const uint8_t midiLengths[8] = {3, 3, 3, 3, 2, 2, 3, 3};
+  return midiLengths[(command >> 4) & 0x7];
 }
