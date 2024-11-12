@@ -20,6 +20,7 @@ SOURCES=\
 	AudioModePWMDDT.cpp \
 	AudioModePredictive.cpp \
 	AudioModePulseEnergy.cpp \
+	AudioModeSchmitt.cpp \
 	Drum.cpp \
 	BarChars.cpp \
 	Coil.cpp \

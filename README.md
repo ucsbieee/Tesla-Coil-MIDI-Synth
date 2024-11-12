@@ -50,6 +50,7 @@ All MIDI messages that come in over USB or the MIDI IN port are sent out the MID
 ## Audio Processing Modes
  * **Predictive**: Predict how much energy will be in a pulse based on the filtered derivative near zero crossing.
  * **Pulse Energy**: Output a pulse after a delay (~5ms) with width proportional to the area of the input pulse above the noise gate level. Pulse width clamped to maximum setting.
+ * **Schmitt**: Output on when audio exceeds the noise gate level, then only turn off again once audio falls below negative noise gate level (Schmitt trigger behavior). Pulse width clamped to maximum setting.
  * **Clamped Binary**: Output on when audio exceeds the noise gate level. Pulse width clamped to maximum setting.
  * **Binary**: Output on when audio exceeds the noise gate level.
  * **Binary DDT**: Output on when the derivative of the audio exceeds a certain threshold. Pulse width clamped to maximum setting.

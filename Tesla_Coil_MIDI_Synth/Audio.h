@@ -2,12 +2,13 @@
 
 #include "AudioMode.h"
 #include "AudioModePredictive.h"
-#include "AudioModeBinaryDDT.h"
-#include "AudioModePWMDDT.h"
 #include "AudioModePulseEnergy.h"
+#include "AudioModeSchmitt.h"
 #include "AudioModeClampedBinary.h"
 #include "AudioModeBinary.h"
+#include "AudioModeBinaryDDT.h"
 #include "AudioModePWM.h"
+#include "AudioModePWMDDT.h"
 
 #include <inttypes.h>
 
@@ -41,6 +42,7 @@ public:
     AM_OFF,
     AM_PREDICTIVE,
     AM_PULSE_ENERGY,
+    AM_SCHMITT,
     AM_CLAMPED_BINARY,
     AM_BINARY,
     AM_BINARY_DDT,
@@ -102,6 +104,7 @@ private:
   AudioMode              AM_OFF_o;
   AudioModePredictive    AM_PREDICTIVE_o;
   AudioModePulseEnergy   AM_PULSE_ENERGY_o;
+  AudioModeSchmitt       AM_SCHMITT_o;
   AudioModeClampedBinary AM_CLAMPED_BINARY_o;
   AudioModeBinary        AM_BINARY_o;
   AudioModeBinaryDDT     AM_BINARY_DDT_o;
