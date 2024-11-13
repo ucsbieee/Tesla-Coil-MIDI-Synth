@@ -15,6 +15,7 @@ SOURCES=\
 	AudioMode.cpp \
 	AudioModeBinary.cpp \
 	AudioModeBinaryDDT.cpp \
+	AudioModeBinaryOctave.cpp \
 	AudioModeClampedBinary.cpp \
 	AudioModePWM.cpp \
 	AudioModePWMDDT.cpp \
