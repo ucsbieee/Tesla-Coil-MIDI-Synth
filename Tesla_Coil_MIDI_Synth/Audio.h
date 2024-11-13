@@ -7,6 +7,7 @@
 #include "AudioModeClampedBinary.h"
 #include "AudioModeBinary.h"
 #include "AudioModeBinaryDDT.h"
+#include "AudioModeBinaryOctave.h"
 #include "AudioModePWM.h"
 #include "AudioModePWMDDT.h"
 
@@ -46,6 +47,7 @@ public:
     AM_CLAMPED_BINARY,
     AM_BINARY,
     AM_BINARY_DDT,
+    AM_BINARY_OCTAVE,
     AM_PWM,
     AM_PWM_DDT,
     AM_END
@@ -108,6 +110,7 @@ private:
   AudioModeClampedBinary AM_CLAMPED_BINARY_o;
   AudioModeBinary        AM_BINARY_o;
   AudioModeBinaryDDT     AM_BINARY_DDT_o;
+  AudioModeBinaryOctave  AM_BINARY_OCTAVE_o;
   AudioModePWM           AM_PWM_o;
   AudioModePWMDDT        AM_PWM_DDT_o;
   

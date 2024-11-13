@@ -54,5 +54,6 @@ All MIDI messages that come in over USB or the MIDI IN port are sent out the MID
  * **Clamped Binary**: Output on when audio exceeds the noise gate level. Pulse width clamped to maximum setting.
  * **Binary**: Output on when audio exceeds the noise gate level.
  * **Binary DDT**: Output on when the derivative of the audio exceeds a certain threshold. Pulse width clamped to maximum setting.
+ * **Binary Octave Down**: Output toggles when audio goes from above the noise gate level to below it.
  * **PWM**: Output 48kHz PWM with pulse width proportional to the sample value. Audio baseline level subtracted away.
  * **PWM DDT**: Output 48kHz PWM with pulse width proportional to the derivative of the audio.

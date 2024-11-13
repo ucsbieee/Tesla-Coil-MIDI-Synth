@@ -16,6 +16,7 @@ processors{
   &AM_CLAMPED_BINARY_o,
   &AM_BINARY_o,
   &AM_BINARY_DDT_o,
+  &AM_BINARY_OCTAVE_o,
   &AM_PWM_o,
   &AM_PWM_DDT_o
 },
@@ -28,6 +29,7 @@ AM_SCHMITT_o(*this),
 AM_CLAMPED_BINARY_o(*this),
 AM_BINARY_o(*this),
 AM_BINARY_DDT_o(*this),
+AM_BINARY_OCTAVE_o(*this),
 AM_PWM_o(*this),
 AM_PWM_DDT_o(*this) {}
 
