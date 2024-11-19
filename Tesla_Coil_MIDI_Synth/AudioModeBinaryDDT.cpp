@@ -10,7 +10,7 @@ void AudioModeBinaryDDT::reset() {
 uint16_t AudioModeBinaryDDT::processSample(int32_t in) {
   uint16_t out = 0;
   
-  if(in - lastSample > 2500) {
+  if(in - lastSample > 500) {
     if(pulseWidthCount < audio.pulseWidthMax) {
       out = 0xFFFF;
       pulseWidthCount++;
