@@ -40,6 +40,7 @@ jobs:
           gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
 
   build-emulator-linux:
+    if: false
     runs-on: ubuntu-latest
     needs: create-release
     steps:
@@ -61,6 +62,7 @@ jobs:
           gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
 
   build-emulator-macos:
+    if: false
     runs-on: macos-latest
     needs: create-release
     steps:
@@ -99,6 +101,7 @@ jobs:
           gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
 
   build-emulator-windows:
+    if: false
     runs-on: windows-latest
     needs: create-release
     defaults:
