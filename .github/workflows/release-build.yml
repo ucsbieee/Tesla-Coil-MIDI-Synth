@@ -26,17 +26,17 @@ jobs:
           brew update
           brew install arduino-cli
       - name: Install Arduino core
-        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli core install "UCSB IEEE:sam" --additional-urls "https://raw.githubusercontent.com/ucsbieee/ArduinoCore-SAM3A4C/master/package_TC-controller-3A4C_index.json"
+        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli core install "UCSB-IEEE:sam" --additional-urls "https://raw.githubusercontent.com/ucsbieee/ArduinoCore-SAM3A4C/master/package_TC-controller-3A4C_index.json"
       - name: Install Arduino libraries
         run: /home/linuxbrew/.linuxbrew/bin/arduino-cli lib install LiquidCrystal DueFlashStorage MIDIUSB
       - name: Build
-        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli compile --warnings all --clean -b "UCSB IEEE:sam:TC_controller" --build-property "build.extra_flags=-D__SAM3A4C__ -DRELEASE_BUILD -mthumb {build.usb_flags}" -e Tesla_Coil_MIDI_Synth
+        run: /home/linuxbrew/.linuxbrew/bin/arduino-cli compile --warnings all --clean -b "UCSB-IEEE:sam:TC_controller" --build-property "build.extra_flags=-D__SAM3A4C__ -DRELEASE_BUILD -mthumb {build.usb_flags}" -e Tesla_Coil_MIDI_Synth
       - name: Upload
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           OUTNAME="Tesla_Coil_MIDI_Synth-${{ github.ref_name }}.bin"
-          mv "Tesla_Coil_MIDI_Synth/build/UCSB IEEE.sam.TC_controller/Tesla_Coil_MIDI_Synth.ino.bin" "$OUTNAME"
+          mv "Tesla_Coil_MIDI_Synth/build/UCSB-IEEE.sam.TC_controller/Tesla_Coil_MIDI_Synth.ino.bin" "$OUTNAME"
           gh release upload --clobber "${{ github.ref_name }}" "$OUTNAME"
 
   build-emulator-linux:
