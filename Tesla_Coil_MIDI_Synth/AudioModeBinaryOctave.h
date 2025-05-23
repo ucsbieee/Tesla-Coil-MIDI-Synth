@@ -8,10 +8,12 @@ public:
 
   virtual void reset() override;
   virtual uint16_t processSample(int32_t in) override;
-  
+
   virtual const char *name() const override;
 
 private:
-  bool currentState;
-  bool octaveDown;
+  uint16_t pulseWidthCount = 0;
+  bool state = false;
+  bool lastState = false;
+  bool octaveDown = false;
 };

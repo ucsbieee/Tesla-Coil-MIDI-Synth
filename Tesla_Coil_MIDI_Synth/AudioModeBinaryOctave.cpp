@@ -1,20 +1,38 @@
 #include "AudioModeBinaryOctave.h"
+#include "Audio.h"
 
 void AudioModeBinaryOctave::reset() {
-    currentState = false;
-    octaveDown = false;
+  pulseWidthCount = 0;
+  state = false;
+  lastState = false;
+  octaveDown = false;
 }
 
-// Output high when sample is greater than noise gate threshold
+// Toggle output on rising edge. Input schmitt triggered. Output pulse width limited.
 uint16_t AudioModeBinaryOctave::processSample(int32_t in) {
   // Hope you like LOWER square waves
-  if (currentState && in <= 0) { //Toggle octave down on falling edge
+
+  // Schmitt trigger
+  if(in > 0) state = true;
+  else if(in < -(audio.audioNoiseGate << 7) * audio.audioGain / 0x20) state = false;
+
+  // Toggle on rising edge
+  if(state && !lastState)
     octaveDown = !octaveDown;
-  }
-  currentState = in > 0;
-  return octaveDown ? 0xFFFF : 0;
+
+  lastState = state;
+
+  // Limit pulse width
+  if(octaveDown) {
+    if(pulseWidthCount < audio.pulseWidthMax) {
+      pulseWidthCount++;
+      return 0xFFFF;
+    }
+  } else pulseWidthCount = 0;
+
+  return 0;
 }
 
 const char *AudioModeBinaryOctave::name() const {
-  return "Binary Octave Down";
+  return "Bin Oct Down";
 }
